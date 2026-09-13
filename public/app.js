@@ -404,6 +404,7 @@ function updateAuthUI(user) {
 
   if (user) {
     currentUser = user;
+    window.scrollTo({ left: 0 });
     if (userInfoBlock) userInfoBlock.classList.remove('hidden');
     if (btnLoginOpen) btnLoginOpen.classList.add('hidden');
     if (headerAuthControls) headerAuthControls.classList.remove('hidden');

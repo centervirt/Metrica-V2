@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" class="dark">
+<html lang="es" class="dark overflow-x-hidden w-full">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
@@ -31,27 +31,33 @@
   </script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    html, body {
+      overflow-x: hidden !important;
+      max-width: 100vw;
+      width: 100%;
+      position: relative;
+    }
     body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen antialiased flex flex-col selection:bg-emerald-500 selection:text-slate-950 overflow-x-hidden w-full">
+<body class="bg-slate-950 text-slate-100 min-h-screen antialiased flex flex-col selection:bg-emerald-500 selection:text-slate-950 overflow-x-hidden w-full relative">
 
   <!-- TOP NAVIGATION BAR -->
-  <header class="border-b border-slate-800/80 bg-slate-900/90 backdrop-blur-md sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-3">
+  <header class="border-b border-slate-800/80 bg-slate-900/90 backdrop-blur-md sticky top-0 z-40 w-full overflow-hidden">
+    <div class="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-2 sm:gap-3">
       
       <!-- 1. GRUPO IZQUIERDO: Marca & Selector de Espacio -->
-      <div class="flex items-center gap-3 lg:gap-4 shrink-0">
+      <div class="flex items-center gap-2 sm:gap-3 lg:gap-4 shrink-0 min-w-0">
         <!-- Logo & Título -->
-        <div class="flex items-center gap-2 sm:gap-2.5 shrink-0 cursor-pointer" onclick="switchWorkspaceMode('personal')">
+        <div class="flex items-center gap-1.5 sm:gap-2.5 shrink-0 cursor-pointer" onclick="switchWorkspaceMode('personal')">
           <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center shadow-md shadow-emerald-500/20 shrink-0">
             <i data-lucide="trending-up" class="w-4 h-4 sm:w-5 sm:h-5 text-slate-950 stroke-[2.5]"></i>
           </div>
-          <div>
-            <h1 class="font-bold text-sm sm:text-base text-white leading-none flex items-center gap-1.5">
-              Métrica <span class="text-[9px] sm:text-[10px] font-semibold px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">AR</span>
+          <div class="min-w-0">
+            <h1 class="font-bold text-sm sm:text-base text-white leading-none flex items-center gap-1">
+              <span>Métrica</span> <span class="text-[9px] sm:text-[10px] font-semibold px-1 sm:px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">AR</span>
             </h1>
             <p class="text-[9px] sm:text-[11px] text-slate-400 hidden md:block font-medium mt-0.5" id="headerWorkspaceSubtitle">Finanzas Personales</p>
           </div>
@@ -80,12 +86,12 @@
       </div>
 
       <!-- 2. GRUPO DERECHO: Widgets de Mercado, Acciones & Perfil -->
-      <div class="flex items-center gap-2 sm:gap-3">
+      <div class="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
         <!-- Controles para usuarios autenticados -->
-        <div id="headerAuthenticatedControls" class="hidden flex items-center gap-2 sm:gap-2.5">
+        <div id="headerAuthenticatedControls" class="hidden flex items-center gap-1.5 sm:gap-2">
           
           <!-- CÁPSULA FINANCIERA UNIFICADA: Dólar Ticker + Switch ARS/USD + Ocultar Saldo -->
-          <div class="flex items-center gap-2 px-2 py-1 rounded-xl bg-slate-950/80 border border-slate-800 text-xs shadow-inner">
+          <div class="flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-xl bg-slate-950/80 border border-slate-800 text-xs shadow-inner">
             <!-- Ticker Dólares en vivo (pantallas medianas en adelante) -->
             <div id="dolarTicker" class="hidden xl:flex items-center gap-2 text-[11px] text-slate-300 font-medium select-none pr-2 border-r border-slate-800" title="Cotizaciones en vivo vía DolarApi">
               <div class="flex items-center gap-1">
@@ -100,9 +106,9 @@
             </div>
 
             <!-- Switch de Moneda Global (ARS / USD) -->
-            <div class="flex items-center rounded-lg bg-slate-900 border border-slate-800/90 p-0.5 text-[10px] font-semibold shrink-0">
-              <button type="button" id="btnCurrencyARS" onclick="setMonedaGlobal('ARS')" title="Ver en Pesos Argentinos ($ ARS)" class="px-2 py-0.5 rounded bg-emerald-500 text-slate-950 font-bold transition">ARS</button>
-              <button type="button" id="btnCurrencyUSD" onclick="setMonedaGlobal('USD')" title="Ver en Dólar MEP (US$)" class="px-2 py-0.5 rounded text-slate-400 hover:text-white transition">USD</button>
+            <div class="flex items-center rounded-lg bg-slate-900 border border-slate-800/90 p-0.5 text-[9px] sm:text-[10px] font-semibold shrink-0">
+              <button type="button" id="btnCurrencyARS" onclick="setMonedaGlobal('ARS')" title="Ver en Pesos Argentinos ($ ARS)" class="px-1.5 sm:px-2 py-0.5 rounded bg-emerald-500 text-slate-950 font-bold transition">ARS</button>
+              <button type="button" id="btnCurrencyUSD" onclick="setMonedaGlobal('USD')" title="Ver en Dólar MEP (US$)" class="px-1.5 sm:px-2 py-0.5 rounded text-slate-400 hover:text-white transition">USD</button>
             </div>
 
             <!-- Botón Modo Privacidad (Ocultar montos) -->
@@ -118,29 +124,29 @@
             <span id="badgeHeaderPlan" class="text-[9px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-400 font-bold uppercase">Free</span>
           </button>
 
-          <!-- Botón Guía / Ayuda (Icono elegante) -->
+          <!-- Botón Guía / Ayuda (Desktop) -->
           <button onclick="abrirModalGuiaGeneral()" title="Guía y Tour del Tablero" class="hidden lg:flex p-1.5 rounded-xl bg-slate-950/80 hover:bg-slate-800 text-slate-400 hover:text-indigo-300 border border-slate-800 transition active:scale-95 shrink-0">
             <i data-lucide="help-circle" class="w-4 h-4"></i>
           </button>
 
           <!-- Botón Copiloto IA (Acción Principal) -->
-          <button onclick="openModal('modalAgenteIA')" class="flex items-center gap-1.5 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-950 font-bold text-xs px-3 py-1.5 rounded-xl transition shadow-md shadow-emerald-500/20 active:scale-95 shrink-0">
+          <button onclick="openModal('modalAgenteIA')" class="flex items-center gap-1.5 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-950 font-bold text-xs p-2 sm:px-3 sm:py-1.5 rounded-xl transition shadow-md shadow-emerald-500/20 active:scale-95 shrink-0" title="Copiloto Financiero IA">
             <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
             <span class="hidden sm:inline">Copiloto IA</span>
           </button>
 
-          <!-- Botón + Gasto Rápido -->
-          <button onclick="openModal('modalGasto')" class="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs px-2.5 py-1.5 rounded-xl transition active:scale-95 shrink-0">
+          <!-- Botón + Gasto Rápido (Desktop / Tablets) -->
+          <button onclick="openModal('modalGasto')" class="hidden sm:flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs px-2.5 py-1.5 rounded-xl transition active:scale-95 shrink-0" title="Registrar Gasto">
             <i data-lucide="plus" class="w-3.5 h-3.5 text-emerald-400 stroke-[3]"></i>
-            <span class="hidden sm:inline">Gasto</span>
+            <span class="hidden md:inline">Gasto</span>
           </button>
         </div>
 
         <!-- 3. PERFIL DE USUARIO / LOGIN -->
-        <div id="userProfileArea" class="flex items-center gap-2 shrink-0">
+        <div id="userProfileArea" class="flex items-center gap-1.5 sm:gap-2 shrink-0">
           <!-- Vista de usuario autenticado -->
           <div id="userInfoBlock" class="hidden flex items-center gap-1 sm:gap-1.5">
-            <button type="button" onclick="abrirModalPerfilMobile()" class="flex items-center gap-2 p-1 sm:px-2.5 sm:py-1 rounded-xl hover:bg-slate-800/80 border border-transparent hover:border-slate-800 transition active:scale-95" title="Mi Cuenta y Ajustes">
+            <button type="button" onclick="abrirModalPerfilMobile()" class="flex items-center gap-1.5 p-0.5 sm:px-2 sm:py-1 rounded-xl hover:bg-slate-800/80 border border-transparent hover:border-slate-800 transition active:scale-95" title="Mi Cuenta y Ajustes">
               <div id="userAvatar" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 font-bold text-xs flex items-center justify-center overflow-hidden shrink-0">
                 U
               </div>
@@ -151,7 +157,7 @@
             </button>
           </div>
           <!-- Vista sin iniciar sesión -->
-          <button id="btnLoginOpen" onclick="openModal('modalAuth')" class="text-xs bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-semibold px-3 py-1.5 rounded-xl transition active:scale-95 flex items-center gap-1.5 shrink-0">
+          <button id="btnLoginOpen" onclick="openModal('modalAuth')" class="text-xs bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-semibold px-2.5 sm:px-3 py-1.5 rounded-xl transition active:scale-95 flex items-center gap-1.5 shrink-0">
             <i data-lucide="log-in" class="w-3.5 h-3.5"></i>
             <span>Ingresar</span>
           </button>
@@ -264,22 +270,22 @@
 
     <!-- GUÍA DIDÁCTICA: RESUMEN GENERAL & KPIS -->
     <div id="guiaBox-resumen" class="bg-gradient-to-r from-slate-900/90 via-slate-900/60 to-slate-900/90 border border-slate-800/90 rounded-2xl p-4 sm:p-5 relative overflow-hidden transition-all duration-300">
-      <div class="flex items-start sm:items-center justify-between gap-3">
-        <div class="flex items-center gap-2.5">
+      <div class="flex items-center justify-between gap-2 sm:gap-3">
+        <div class="flex items-center gap-2 sm:gap-2.5 min-w-0 flex-1">
           <div class="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center font-bold text-sm shrink-0">
             <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
           </div>
-          <div>
-            <div class="flex items-center gap-2">
-              <h4 class="font-bold text-white text-xs sm:text-sm">Guía de Inicio: Tablero de Control & KPIs</h4>
-              <span class="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-semibold uppercase">Paso a Paso</span>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <h4 class="font-bold text-white text-xs sm:text-sm truncate">Guía: Tablero de Control</h4>
+              <span class="text-[9px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 font-semibold uppercase shrink-0">Guía</span>
             </div>
-            <p class="text-[11px] text-slate-400">Comprende cómo se conectan tus cuentas, ingresos proyectados y compromisos fijos del mes</p>
+            <p class="text-[10px] sm:text-[11px] text-slate-400 truncate">Comprende cómo se conectan tus cuentas e ingresos</p>
           </div>
         </div>
-        <button type="button" onclick="toggleGuiaSeccion('resumen')" id="btnToggleGuia-resumen" class="text-[11px] text-slate-400 hover:text-slate-200 bg-slate-800/80 hover:bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-700/60 transition shrink-0 flex items-center gap-1.5">
+        <button type="button" onclick="toggleGuiaSeccion('resumen')" id="btnToggleGuia-resumen" class="text-[11px] text-slate-400 hover:text-slate-200 bg-slate-800/80 hover:bg-slate-800 px-2 sm:px-2.5 py-1 rounded-lg border border-slate-700/60 transition shrink-0 flex items-center gap-1">
           <i data-lucide="chevron-up" id="iconToggleGuia-resumen" class="w-3.5 h-3.5"></i>
-          <span id="labelToggleGuia-resumen">Ocultar guía</span>
+          <span id="labelToggleGuia-resumen" class="hidden xs:inline">Ocultar guía</span>
         </button>
       </div>
 
@@ -433,22 +439,22 @@
     <section id="tab-gastos" class="tab-content space-y-3 sm:space-y-4">
       <!-- GUÍA DIDÁCTICA: GASTOS Y DEUDAS -->
       <div id="guiaBox-gastos" class="bg-gradient-to-r from-slate-900/90 via-slate-900/60 to-slate-900/90 border border-slate-800/90 rounded-2xl p-4 sm:p-5 relative overflow-hidden transition-all duration-300">
-        <div class="flex items-start sm:items-center justify-between gap-3">
-          <div class="flex items-center gap-2.5">
+        <div class="flex items-center justify-between gap-2 sm:gap-3">
+          <div class="flex items-center gap-2 sm:gap-2.5 min-w-0 flex-1">
             <div class="w-8 h-8 rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/20 flex items-center justify-center font-bold text-sm shrink-0">
               <i data-lucide="receipt" class="w-4 h-4"></i>
             </div>
-            <div>
-              <div class="flex items-center gap-2">
-                <h4 class="font-bold text-white text-xs sm:text-sm">Guía: Gastos, Vencimientos y Deudas</h4>
-                <span class="text-[9px] px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 font-semibold uppercase">Control de Pasivos</span>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <h4 class="font-bold text-white text-xs sm:text-sm truncate">Guía: Gastos y Deudas</h4>
+                <span class="text-[9px] px-1.5 py-0.2 rounded bg-rose-500/20 text-rose-300 font-semibold uppercase shrink-0">Guía</span>
               </div>
-              <p class="text-[11px] text-slate-400">Registra compromisos, edita datos si te equivocaste y amortiza pagos con impacto bancario</p>
+              <p class="text-[10px] sm:text-[11px] text-slate-400 truncate">Registra compromisos, edita datos y amortiza pagos</p>
             </div>
           </div>
-          <button type="button" onclick="toggleGuiaSeccion('gastos')" id="btnToggleGuia-gastos" class="text-[11px] text-slate-400 hover:text-slate-200 bg-slate-800/80 hover:bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-700/60 transition shrink-0 flex items-center gap-1.5">
+          <button type="button" onclick="toggleGuiaSeccion('gastos')" id="btnToggleGuia-gastos" class="text-[11px] text-slate-400 hover:text-slate-200 bg-slate-800/80 hover:bg-slate-800 px-2 sm:px-2.5 py-1 rounded-lg border border-slate-700/60 transition shrink-0 flex items-center gap-1">
             <i data-lucide="chevron-up" id="iconToggleGuia-gastos" class="w-3.5 h-3.5"></i>
-            <span id="labelToggleGuia-gastos">Ocultar guía</span>
+            <span id="labelToggleGuia-gastos" class="hidden xs:inline">Ocultar guía</span>
           </button>
         </div>
 
@@ -568,22 +574,22 @@
     <section id="tab-cuentas" class="tab-content hidden space-y-3 sm:space-y-4">
       <!-- GUÍA DIDÁCTICA: CUENTAS Y BANCOS -->
       <div id="guiaBox-cuentas" class="bg-gradient-to-r from-slate-900/90 via-slate-900/60 to-slate-900/90 border border-slate-800/90 rounded-2xl p-4 sm:p-5 relative overflow-hidden transition-all duration-300">
-        <div class="flex items-start sm:items-center justify-between gap-3">
-          <div class="flex items-center gap-2.5">
+        <div class="flex items-center justify-between gap-2 sm:gap-3">
+          <div class="flex items-center gap-2 sm:gap-2.5 min-w-0 flex-1">
             <div class="w-8 h-8 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center justify-center font-bold text-sm shrink-0">
               <i data-lucide="landmark" class="w-4 h-4"></i>
             </div>
-            <div>
-              <div class="flex items-center gap-2">
-                <h4 class="font-bold text-white text-xs sm:text-sm">Guía: Cuentas, Bancos y Billeteras</h4>
-                <span class="text-[9px] px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-semibold uppercase">Gestión de Liquidez</span>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <h4 class="font-bold text-white text-xs sm:text-sm truncate">Guía: Cuentas y Bancos</h4>
+                <span class="text-[9px] px-1.5 py-0.2 rounded bg-indigo-500/20 text-indigo-300 font-semibold uppercase shrink-0">Guía</span>
               </div>
-              <p class="text-[11px] text-slate-400">Controla tu dinero en bancos tradicionales, billeteras virtuales y transfiere fondos internamente</p>
+              <p class="text-[10px] sm:text-[11px] text-slate-400 truncate">Controla tu dinero en bancos y transfiere entre cuentas</p>
             </div>
           </div>
-          <button type="button" onclick="toggleGuiaSeccion('cuentas')" id="btnToggleGuia-cuentas" class="text-[11px] text-slate-400 hover:text-slate-200 bg-slate-800/80 hover:bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-700/60 transition shrink-0 flex items-center gap-1.5">
+          <button type="button" onclick="toggleGuiaSeccion('cuentas')" id="btnToggleGuia-cuentas" class="text-[11px] text-slate-400 hover:text-slate-200 bg-slate-800/80 hover:bg-slate-800 px-2 sm:px-2.5 py-1 rounded-lg border border-slate-700/60 transition shrink-0 flex items-center gap-1">
             <i data-lucide="chevron-up" id="iconToggleGuia-cuentas" class="w-3.5 h-3.5"></i>
-            <span id="labelToggleGuia-cuentas">Ocultar guía</span>
+            <span id="labelToggleGuia-cuentas" class="hidden xs:inline">Ocultar guía</span>
           </button>
         </div>
 
@@ -670,22 +676,22 @@
     <section id="tab-inversiones" class="tab-content hidden space-y-3 sm:space-y-4">
       <!-- GUÍA DIDÁCTICA: INVERSIONES -->
       <div id="guiaBox-inversiones" class="bg-gradient-to-r from-slate-900/90 via-slate-900/60 to-slate-900/90 border border-slate-800/90 rounded-2xl p-4 sm:p-5 relative overflow-hidden transition-all duration-300">
-        <div class="flex items-start sm:items-center justify-between gap-3">
-          <div class="flex items-center gap-2.5">
+        <div class="flex items-center justify-between gap-2 sm:gap-3">
+          <div class="flex items-center gap-2 sm:gap-2.5 min-w-0 flex-1">
             <div class="w-8 h-8 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20 flex items-center justify-center font-bold text-sm shrink-0">
               <i data-lucide="line-chart" class="w-4 h-4"></i>
             </div>
-            <div>
-              <div class="flex items-center gap-2">
-                <h4 class="font-bold text-white text-xs sm:text-sm">Guía: Portafolio de Inversiones</h4>
-                <span class="text-[9px] px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 font-semibold uppercase">Creación de Riqueza</span>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <h4 class="font-bold text-white text-xs sm:text-sm truncate">Guía: Inversiones</h4>
+                <span class="text-[9px] px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-300 font-semibold uppercase shrink-0">Guía</span>
               </div>
-              <p class="text-[11px] text-slate-400">Valúa tus activos (CEDEARs, Fondos y Cripto) y calcula tu ganancia o pérdida no realizada en tiempo real</p>
+              <p class="text-[10px] sm:text-[11px] text-slate-400 truncate">Valúa tus activos y calcula tu rendimiento en vivo</p>
             </div>
           </div>
-          <button type="button" onclick="toggleGuiaSeccion('inversiones')" id="btnToggleGuia-inversiones" class="text-[11px] text-slate-400 hover:text-slate-200 bg-slate-800/80 hover:bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-700/60 transition shrink-0 flex items-center gap-1.5">
+          <button type="button" onclick="toggleGuiaSeccion('inversiones')" id="btnToggleGuia-inversiones" class="text-[11px] text-slate-400 hover:text-slate-200 bg-slate-800/80 hover:bg-slate-800 px-2 sm:px-2.5 py-1 rounded-lg border border-slate-700/60 transition shrink-0 flex items-center gap-1">
             <i data-lucide="chevron-up" id="iconToggleGuia-inversiones" class="w-3.5 h-3.5"></i>
-            <span id="labelToggleGuia-inversiones">Ocultar guía</span>
+            <span id="labelToggleGuia-inversiones" class="hidden xs:inline">Ocultar guía</span>
           </button>
         </div>
 
@@ -768,22 +774,22 @@
     <section id="tab-ingresos" class="tab-content hidden space-y-3 sm:space-y-4">
       <!-- GUÍA DIDÁCTICA: INGRESOS PROYECTADOS -->
       <div id="guiaBox-ingresos" class="bg-gradient-to-r from-slate-900/90 via-slate-900/60 to-slate-900/90 border border-slate-800/90 rounded-2xl p-4 sm:p-5 relative overflow-hidden transition-all duration-300">
-        <div class="flex items-start sm:items-center justify-between gap-3">
-          <div class="flex items-center gap-2.5">
+        <div class="flex items-center justify-between gap-2 sm:gap-3">
+          <div class="flex items-center gap-2 sm:gap-2.5 min-w-0 flex-1">
             <div class="w-8 h-8 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20 flex items-center justify-center font-bold text-sm shrink-0">
               <i data-lucide="coins" class="w-4 h-4"></i>
             </div>
-            <div>
-              <div class="flex items-center gap-2">
-                <h4 class="font-bold text-white text-xs sm:text-sm">Guía: Ingresos Proyectados y Sueldos</h4>
-                <span class="text-[9px] px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 font-semibold uppercase">Flujo de Entrada</span>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <h4 class="font-bold text-white text-xs sm:text-sm truncate">Guía: Ingresos Proyectados</h4>
+                <span class="text-[9px] px-1.5 py-0.2 rounded bg-blue-500/20 text-blue-300 font-semibold uppercase shrink-0">Guía</span>
               </div>
-              <p class="text-[11px] text-slate-400">Planifica tus cobros de cada mes (sueldos semanales, quincenales, ventas o freelance) para calcular tu balance neto</p>
+              <p class="text-[10px] sm:text-[11px] text-slate-400 truncate">Planifica tus cobros del mes y calcula tu balance neto</p>
             </div>
           </div>
-          <button type="button" onclick="toggleGuiaSeccion('ingresos')" id="btnToggleGuia-ingresos" class="text-[11px] text-slate-400 hover:text-slate-200 bg-slate-800/80 hover:bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-700/60 transition shrink-0 flex items-center gap-1.5">
+          <button type="button" onclick="toggleGuiaSeccion('ingresos')" id="btnToggleGuia-ingresos" class="text-[11px] text-slate-400 hover:text-slate-200 bg-slate-800/80 hover:bg-slate-800 px-2 sm:px-2.5 py-1 rounded-lg border border-slate-700/60 transition shrink-0 flex items-center gap-1">
             <i data-lucide="chevron-up" id="iconToggleGuia-ingresos" class="w-3.5 h-3.5"></i>
-            <span id="labelToggleGuia-ingresos">Ocultar guía</span>
+            <span id="labelToggleGuia-ingresos" class="hidden xs:inline">Ocultar guía</span>
           </button>
         </div>
 
@@ -882,22 +888,22 @@
 
       <!-- GUÍA DIDÁCTICA: APRENDER & SIMULADOR -->
       <div id="guiaBox-aprender" class="bg-gradient-to-r from-slate-900/90 via-slate-900/60 to-slate-900/90 border border-slate-800/90 rounded-2xl p-4 sm:p-5 relative overflow-hidden transition-all duration-300">
-        <div class="flex items-start sm:items-center justify-between gap-3">
-          <div class="flex items-center gap-2.5">
+        <div class="flex items-center justify-between gap-2 sm:gap-3">
+          <div class="flex items-center gap-2 sm:gap-2.5 min-w-0 flex-1">
             <div class="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center font-bold text-sm shrink-0">
               <i data-lucide="compass" class="w-4 h-4"></i>
             </div>
-            <div>
-              <div class="flex items-center gap-2">
-                <h4 class="font-bold text-white text-xs sm:text-sm">Guía: Diagnóstico de Salud Financiera y Simulador</h4>
-                <span class="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold uppercase">Educación Aplicada</span>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <h4 class="font-bold text-white text-xs sm:text-sm truncate">Guía: Métodos y Simulador</h4>
+                <span class="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 font-semibold uppercase shrink-0">Guía</span>
               </div>
-              <p class="text-[11px] text-slate-400">Descubre cómo interpretar tu puntaje 0-100, la Regla 50/30/20 y acelerar el pago de tus pasivos</p>
+              <p class="text-[10px] sm:text-[11px] text-slate-400 truncate">Diagnóstico 0-100, Regla 50/30/20 y desendeudamiento</p>
             </div>
           </div>
-          <button type="button" onclick="toggleGuiaSeccion('aprender')" id="btnToggleGuia-aprender" class="text-[11px] text-slate-400 hover:text-slate-200 bg-slate-800/80 hover:bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-700/60 transition shrink-0 flex items-center gap-1.5">
+          <button type="button" onclick="toggleGuiaSeccion('aprender')" id="btnToggleGuia-aprender" class="text-[11px] text-slate-400 hover:text-slate-200 bg-slate-800/80 hover:bg-slate-800 px-2 sm:px-2.5 py-1 rounded-lg border border-slate-700/60 transition shrink-0 flex items-center gap-1">
             <i data-lucide="chevron-up" id="iconToggleGuia-aprender" class="w-3.5 h-3.5"></i>
-            <span id="labelToggleGuia-aprender">Ocultar guía</span>
+            <span id="labelToggleGuia-aprender" class="hidden xs:inline">Ocultar guía</span>
           </button>
         </div>
 
