@@ -346,6 +346,9 @@ function initGuiasUsuario() {
 
 function abrirModalGuiaGeneral() {
   openModal('modalGuiaGeneral');
+  setTimeout(() => {
+    if (window.lucide) lucide.createIcons();
+  }, 50);
 }
 
 function confirmarCierreGuiaGeneral() {
