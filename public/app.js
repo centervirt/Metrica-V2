@@ -978,6 +978,15 @@ async function loadInversiones() {
         const rinde = inv.precio_promedio > 0 ? (((precioRef - inv.precio_promedio) / inv.precio_promedio) * 100).toFixed(1) : 0;
         const rindeColor = rinde >= 0 ? 'text-emerald-400' : 'text-rose-400';
         const gananciaSigno = gananciaNeta >= 0 ? '+' : '';
+        const tipoBadgeStyles = {
+          'Accion': 'bg-sky-500/10 text-sky-400 border-sky-500/20',
+          'CEDEAR': 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+          'Bono': 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+          'Crypto': 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+          'FCI': 'bg-teal-500/10 text-teal-400 border-teal-500/20'
+        };
+        const badgeClass = tipoBadgeStyles[inv.tipo] || 'bg-slate-800 text-slate-300 border-slate-700';
+        const tipoLabel = inv.tipo === 'Accion' ? 'Acción' : (inv.tipo || 'Activo');
 
         return `
           <tr class="hover:bg-slate-800/30 transition">
@@ -985,8 +994,8 @@ async function loadInversiones() {
               <div>${inv.ticker}</div>
             </td>
             <td class="px-5 py-3.5">
-              <span class="text-xs px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20 font-medium">
-                ${inv.tipo || 'Activo'}
+              <span class="text-xs px-2 py-0.5 rounded-full border font-medium ${badgeClass}">
+                ${tipoLabel}
               </span>
             </td>
             <td class="px-5 py-3.5 text-slate-300 font-medium">${inv.cantidad}</td>
@@ -1020,14 +1029,23 @@ async function loadInversiones() {
         const rinde = inv.precio_promedio > 0 ? (((precioRef - inv.precio_promedio) / inv.precio_promedio) * 100).toFixed(1) : 0;
         const rindeColor = rinde >= 0 ? 'text-emerald-400' : 'text-rose-400';
         const gananciaSigno = gananciaNeta >= 0 ? '+' : '';
+        const tipoBadgeStyles = {
+          'Accion': 'bg-sky-500/10 text-sky-400 border-sky-500/20',
+          'CEDEAR': 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+          'Bono': 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+          'Crypto': 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+          'FCI': 'bg-teal-500/10 text-teal-400 border-teal-500/20'
+        };
+        const badgeClass = tipoBadgeStyles[inv.tipo] || 'bg-slate-800 text-slate-300 border-slate-700';
+        const tipoLabel = inv.tipo === 'Accion' ? 'Acción' : (inv.tipo || 'Activo');
 
         return `
           <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-3.5 space-y-2">
             <div class="flex justify-between items-start">
               <div>
                 <span class="font-bold text-white text-base tracking-wide">${inv.ticker}</span>
-                <span class="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20 font-medium ml-1.5">
-                  ${inv.tipo || 'Activo'}
+                <span class="text-[10px] px-2 py-0.5 rounded-full border font-medium ml-1.5 ${badgeClass}">
+                  ${tipoLabel}
                 </span>
                 <div class="text-xs text-slate-400 mt-1">${inv.cantidad} unid. &times; ${formatMoney(inv.precio_promedio)}</div>
               </div>

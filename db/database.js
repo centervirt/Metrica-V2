@@ -53,7 +53,37 @@ function runMigrations() {
         console.log('Migrando tabla usuarios: agregando columna rol...');
         db.exec("ALTER TABLE usuarios ADD COLUMN rol TEXT DEFAULT 'user'");
     }
+
+    // Migración para tabla inversiones: permitir Accion y Bono
+    try {
+        const invDef = db.prepare("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'inversiones'").get();
+        if (invDef && !invDef.sql.includes('Accion')) {
+            console.log("Migrando tabla inversiones: ampliando tipos a Acciones Argentinas y Bonos...");
+            db.exec(`
+                PRAGMA foreign_keys = OFF;
+                CREATE TABLE IF NOT EXISTS inversiones_temp (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    usuario_id INTEGER,
+                    ticker TEXT NOT NULL,
+                    tipo TEXT CHECK(tipo IN ('Accion', 'Acciones', 'CEDEAR', 'FCI', 'Crypto', 'Bono')),
+                    cantidad REAL NOT NULL,
+                    precio_promedio REAL,
+                    valor_actual REAL,
+                    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+                );
+                INSERT INTO inversiones_temp (id, usuario_id, ticker, tipo, cantidad, precio_promedio, valor_actual)
+                SELECT id, usuario_id, ticker, tipo, cantidad, precio_promedio, valor_actual FROM inversiones;
+                DROP TABLE inversiones;
+                ALTER TABLE inversiones_temp RENAME TO inversiones;
+                PRAGMA foreign_keys = ON;
+            `);
+        }
+    } catch (e) {
+        console.warn('Nota en migración de inversiones:', e.message);
+    }
+
 }
+
 
 /**
  * Inicializa la base de datos si las tablas no existen y aplica migraciones.

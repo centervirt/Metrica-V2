@@ -2783,7 +2783,7 @@
           <div>
             <label class="block text-xs font-medium text-slate-400 mb-1">Ticker / Símbolo *</label>
             <div class="relative flex items-center">
-              <input type="text" name="ticker" id="inputInvTicker" required placeholder="Ej: SPY, AAPL, BTC" oninput="debounceConsultarCotizacion(this.value)" class="w-full uppercase bg-slate-950 border border-slate-800 rounded-lg pl-3 pr-8 py-2 text-sm text-white focus:outline-none focus:border-purple-500 font-semibold tracking-wide" />
+              <input type="text" name="ticker" id="inputInvTicker" required placeholder="Ej: YPFD, GGAL, ALUA, SPY, BTC" oninput="debounceConsultarCotizacion(this.value)" class="w-full uppercase bg-slate-950 border border-slate-800 rounded-lg pl-3 pr-8 py-2 text-sm text-white focus:outline-none focus:border-purple-500 font-semibold tracking-wide" />
               <button type="button" onclick="consultarCotizacionManual()" title="Buscar cotización actual" class="absolute right-2 text-purple-400 hover:text-purple-300">
                 <i data-lucide="search" class="w-4 h-4"></i>
               </button>
@@ -2792,7 +2792,9 @@
           <div>
             <label class="block text-xs font-medium text-slate-400 mb-1">Tipo de Activo</label>
             <select name="tipo" id="inputInvTipo" onchange="consultarCotizacionManual()" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-purple-500">
+              <option value="Accion">Acción Argentina (BYMA / Merval)</option>
               <option value="CEDEAR">CEDEAR</option>
+              <option value="Bono">Bono Soberano / ON</option>
               <option value="FCI">FCI (Fondo Común)</option>
               <option value="Crypto">Criptomoneda</option>
             </select>

@@ -57,12 +57,13 @@ CREATE TABLE IF NOT EXISTS inversiones (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     usuario_id INTEGER,
     ticker TEXT NOT NULL,
-    tipo TEXT CHECK(tipo IN ('FCI', 'CEDEAR', 'Crypto')),
+    tipo TEXT CHECK(tipo IN ('Accion', 'Acciones', 'CEDEAR', 'FCI', 'Crypto', 'Bono')),
     cantidad REAL NOT NULL,
     precio_promedio REAL,
     valor_actual REAL,
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 );
+
 
 -- Alertas: Notificaciones del sistema
 CREATE TABLE IF NOT EXISTS alertas (
