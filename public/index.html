@@ -39,125 +39,127 @@
 <body class="bg-slate-950 text-slate-100 min-h-screen antialiased flex flex-col selection:bg-emerald-500 selection:text-slate-950 overflow-x-hidden w-full">
 
   <!-- TOP NAVIGATION BAR -->
-  <header class="border-b border-slate-800/80 bg-slate-900/80 backdrop-blur sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-2">
-      <!-- Logo & Title -->
-      <div class="flex items-center gap-2 sm:gap-3 shrink-0">
-        <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/20 shrink-0">
-          <i data-lucide="trending-up" class="w-4 h-4 sm:w-5 sm:h-5 text-slate-950 stroke-[2.5]"></i>
+  <header class="border-b border-slate-800/80 bg-slate-900/90 backdrop-blur-md sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-3">
+      
+      <!-- 1. GRUPO IZQUIERDO: Marca & Selector de Espacio -->
+      <div class="flex items-center gap-3 lg:gap-4 shrink-0">
+        <!-- Logo & Título -->
+        <div class="flex items-center gap-2 sm:gap-2.5 shrink-0 cursor-pointer" onclick="switchWorkspaceMode('personal')">
+          <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center shadow-md shadow-emerald-500/20 shrink-0">
+            <i data-lucide="trending-up" class="w-4 h-4 sm:w-5 sm:h-5 text-slate-950 stroke-[2.5]"></i>
+          </div>
+          <div>
+            <h1 class="font-bold text-sm sm:text-base text-white leading-none flex items-center gap-1.5">
+              Métrica <span class="text-[9px] sm:text-[10px] font-semibold px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">AR</span>
+            </h1>
+            <p class="text-[9px] sm:text-[11px] text-slate-400 hidden md:block font-medium mt-0.5" id="headerWorkspaceSubtitle">Finanzas Personales</p>
+          </div>
         </div>
-        <div>
-          <h1 class="font-bold text-sm sm:text-lg text-white leading-none flex items-center gap-1.5 sm:gap-2">
-            Métrica <span class="text-[9px] sm:text-xs font-semibold px-1.5 sm:px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">AR</span>
-          </h1>
-          <p class="text-[9px] sm:text-xs text-slate-400 hidden xs:block" id="headerWorkspaceSubtitle">Finanzas Personales</p>
+
+        <!-- Separador sutil -->
+        <div class="hidden sm:block h-5 w-px bg-slate-800/90"></div>
+
+        <!-- Switch de Espacio de Trabajo: Desktop (Personal vs Negocios vs Contador Partner) -->
+        <div class="hidden sm:inline-flex p-1 bg-slate-950/90 border border-slate-800/90 rounded-xl text-xs font-semibold shadow-inner">
+          <button type="button" id="btnModePersonal" onclick="switchWorkspaceMode('personal')" title="Ver finanzas personales, gastos y deudas" class="px-2.5 py-1 rounded-lg transition flex items-center gap-1.5 bg-emerald-500 text-slate-950 font-bold shadow-sm">
+            <i data-lucide="user" class="w-3.5 h-3.5"></i>
+            <span>Personal</span>
+          </button>
+          <button type="button" id="btnModeNegocios" onclick="switchWorkspaceMode('negocios')" title="Ver gestión comercial, clientes, facturas y Monotributo" class="px-2.5 py-1 rounded-lg transition flex items-center gap-1.5 text-slate-400 hover:text-white">
+            <i data-lucide="briefcase" class="w-3.5 h-3.5"></i>
+            <span>Negocios</span>
+            <span class="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 font-bold uppercase">PRO</span>
+          </button>
+          <button type="button" id="btnModeContador" onclick="switchWorkspaceMode('contador')" title="Panel Multi-Cliente B2B para Estudios Contables" class="px-2.5 py-1 rounded-lg transition flex items-center gap-1.5 text-slate-400 hover:text-white">
+            <i data-lucide="building-2" class="w-3.5 h-3.5"></i>
+            <span class="hidden md:inline">Estudio</span>
+            <span class="text-[9px] px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-300 font-bold uppercase">B2B</span>
+          </button>
         </div>
       </div>
 
-      <!-- Live status, Actions & User Profile -->
-      <div class="flex items-center gap-1.5 sm:gap-3">
-        <!-- Controles exclusivos para usuarios autenticados -->
-        <div id="headerAuthenticatedControls" class="hidden flex items-center gap-1.5 sm:gap-3">
-          <!-- Switch de Espacio de Trabajo: Desktop (Personal vs Negocios vs Contador Partner) -->
-          <div class="hidden sm:inline-flex p-0.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold shadow-inner">
-            <button type="button" id="btnModePersonal" onclick="switchWorkspaceMode('personal')" title="Ver finanzas personales, gastos y deudas" class="px-2.5 py-1 rounded-lg transition flex items-center gap-1.5 bg-emerald-500 text-slate-950 font-bold shadow-sm">
-              <i data-lucide="user" class="w-3.5 h-3.5"></i>
-              <span>Personal</span>
-            </button>
-            <button type="button" id="btnModeNegocios" onclick="switchWorkspaceMode('negocios')" title="Ver gestión comercial, clientes, facturas y Monotributo" class="px-2.5 py-1 rounded-lg transition flex items-center gap-1.5 text-slate-400 hover:text-white">
-              <i data-lucide="briefcase" class="w-3.5 h-3.5"></i>
-              <span>Negocios</span>
-              <span class="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 font-bold uppercase">PRO</span>
-            </button>
-            <button type="button" id="btnModeContador" onclick="switchWorkspaceMode('contador')" title="Panel Multi-Cliente B2B para Estudios Contables" class="px-2.5 py-1 rounded-lg transition flex items-center gap-1.5 text-slate-400 hover:text-white">
-              <i data-lucide="building-2" class="w-3.5 h-3.5"></i>
-              <span class="hidden md:inline">Estudio</span>
-              <span class="text-[9px] px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-300 font-bold uppercase">B2B</span>
-            </button>
-          </div>
-
-          <!-- Status dot (Desktop) -->
-          <div id="statusBadge" class="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-800/80 border border-slate-700/60 text-[11px] sm:text-xs text-slate-300">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span>Online</span>
-          </div>
-
-          <!-- Ticker Dólar en Vivo (Desktop) -->
-          <div id="dolarTicker" class="hidden lg:flex items-center gap-2 px-2.5 py-1 rounded-full bg-slate-800/80 border border-slate-700/60 text-[11px] text-slate-300 select-none" title="Cotizaciones en vivo vía DolarApi">
-            <div class="flex items-center gap-1">
-              <span class="text-emerald-400 font-bold">Blue:</span>
-              <span id="tickerDolarBlue" class="font-semibold text-white">...</span>
+      <!-- 2. GRUPO DERECHO: Widgets de Mercado, Acciones & Perfil -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Controles para usuarios autenticados -->
+        <div id="headerAuthenticatedControls" class="hidden flex items-center gap-2 sm:gap-2.5">
+          
+          <!-- CÁPSULA FINANCIERA UNIFICADA: Dólar Ticker + Switch ARS/USD + Ocultar Saldo -->
+          <div class="flex items-center gap-2 px-2 py-1 rounded-xl bg-slate-950/80 border border-slate-800 text-xs shadow-inner">
+            <!-- Ticker Dólares en vivo (pantallas medianas en adelante) -->
+            <div id="dolarTicker" class="hidden xl:flex items-center gap-2 text-[11px] text-slate-300 font-medium select-none pr-2 border-r border-slate-800" title="Cotizaciones en vivo vía DolarApi">
+              <div class="flex items-center gap-1">
+                <span class="text-emerald-400 font-bold">Blue</span>
+                <span id="tickerDolarBlue" class="text-white font-semibold">...</span>
+              </div>
+              <span class="text-slate-700">·</span>
+              <div class="flex items-center gap-1">
+                <span class="text-indigo-400 font-bold">MEP</span>
+                <span id="tickerDolarMep" class="text-white font-semibold">...</span>
+              </div>
             </div>
-            <span class="text-slate-600">|</span>
-            <div class="flex items-center gap-1">
-              <span class="text-indigo-400 font-bold">MEP:</span>
-              <span id="tickerDolarMep" class="font-semibold text-white">...</span>
+
+            <!-- Switch de Moneda Global (ARS / USD) -->
+            <div class="flex items-center rounded-lg bg-slate-900 border border-slate-800/90 p-0.5 text-[10px] font-semibold shrink-0">
+              <button type="button" id="btnCurrencyARS" onclick="setMonedaGlobal('ARS')" title="Ver en Pesos Argentinos ($ ARS)" class="px-2 py-0.5 rounded bg-emerald-500 text-slate-950 font-bold transition">ARS</button>
+              <button type="button" id="btnCurrencyUSD" onclick="setMonedaGlobal('USD')" title="Ver en Dólar MEP (US$)" class="px-2 py-0.5 rounded text-slate-400 hover:text-white transition">USD</button>
             </div>
-          </div>
 
-          <!-- Switch de Moneda Global (ARS / USD) - Compacto para Mobile y Desktop -->
-          <div class="flex items-center rounded-lg bg-slate-950 border border-slate-800 p-0.5 text-[10px] sm:text-[11px] font-semibold shrink-0">
-            <button type="button" id="btnCurrencyARS" onclick="setMonedaGlobal('ARS')" title="Ver cifras en Pesos Argentinos ($ ARS)" class="px-1.5 sm:px-2 py-0.5 rounded bg-emerald-500 text-slate-950 font-bold transition">ARS</button>
-            <button type="button" id="btnCurrencyUSD" onclick="setMonedaGlobal('USD')" title="Ver cifras convertidas a Dólar (US$ a tipo MEP)" class="px-1.5 sm:px-2 py-0.5 rounded text-slate-400 hover:text-white transition">USD</button>
+            <!-- Botón Modo Privacidad (Ocultar montos) -->
+            <button type="button" id="btnTogglePrivacy" onclick="toggleModoPrivacidad()" title="Alternar Modo Privacidad" class="p-1 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/70 transition active:scale-95 flex items-center justify-center shrink-0">
+              <i data-lucide="eye" id="iconPrivacy" class="w-3.5 h-3.5"></i>
+            </button>
           </div>
-
-          <!-- Botón Modo Privacidad (Ocultar montos) -->
-          <button type="button" id="btnTogglePrivacy" onclick="toggleModoPrivacidad()" title="Alternar Modo Privacidad" class="p-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-700/60 transition active:scale-95 flex items-center justify-center shrink-0">
-            <i data-lucide="eye" id="iconPrivacy" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
-          </button>
 
           <!-- Botón Planes & Suscripción (Desktop) -->
-          <button type="button" onclick="abrirModalPricing()" title="Planes y Suscripción Bimonetaria" class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 sm:py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-semibold transition active:scale-95 shrink-0">
+          <button type="button" onclick="abrirModalPricing()" title="Planes y Suscripción Bimonetaria" class="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-950/80 hover:bg-slate-800 text-slate-300 border border-slate-800 text-xs font-semibold transition active:scale-95 shrink-0">
             <i data-lucide="sparkles" class="w-3.5 h-3.5 text-emerald-400"></i>
-            <span>Planes</span>
+            <span class="hidden lg:inline font-medium">Planes</span>
             <span id="badgeHeaderPlan" class="text-[9px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-400 font-bold uppercase">Free</span>
           </button>
 
-          <!-- Botón Guía Global / Tour (Desktop) -->
-          <button onclick="abrirModalGuiaGeneral()" title="Guía y Tour de la Plataforma" class="hidden md:flex items-center gap-1.5 px-2.5 py-1 sm:py-1.5 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-xs font-semibold transition active:scale-95 shrink-0">
-            <i data-lucide="help-circle" class="w-3.5 h-3.5 text-indigo-400"></i>
-            <span>Guía</span>
+          <!-- Botón Guía / Ayuda (Icono elegante) -->
+          <button onclick="abrirModalGuiaGeneral()" title="Guía y Tour del Tablero" class="hidden lg:flex p-1.5 rounded-xl bg-slate-950/80 hover:bg-slate-800 text-slate-400 hover:text-indigo-300 border border-slate-800 transition active:scale-95 shrink-0">
+            <i data-lucide="help-circle" class="w-4 h-4"></i>
           </button>
 
-          <!-- Desktop Action Buttons -->
-          <div class="hidden lg:flex items-center gap-2 shrink-0">
-            <button onclick="openModal('modalAgenteIA')" class="flex items-center gap-1.5 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-950 font-bold text-xs px-3 py-1.5 rounded-lg transition shadow-md shadow-emerald-500/20 active:scale-95">
-              <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-              <span>Copiloto IA</span>
-            </button>
-            <button onclick="openModal('modalGasto')" class="flex items-center gap-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30 font-semibold text-xs px-2.5 py-1.5 rounded-lg transition active:scale-95">
-              <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>
-              <span>Gasto</span>
-            </button>
-            <button onclick="openModal('modalCuenta')" class="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium text-xs px-2.5 py-1.5 rounded-lg border border-slate-700 transition active:scale-95">
-              <i data-lucide="wallet" class="w-3.5 h-3.5 text-emerald-400"></i>
-              <span>Cuenta</span>
-            </button>
-          </div>
+          <!-- Botón Copiloto IA (Acción Principal) -->
+          <button onclick="openModal('modalAgenteIA')" class="flex items-center gap-1.5 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-950 font-bold text-xs px-3 py-1.5 rounded-xl transition shadow-md shadow-emerald-500/20 active:scale-95 shrink-0">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+            <span class="hidden sm:inline">Copiloto IA</span>
+          </button>
+
+          <!-- Botón + Gasto Rápido -->
+          <button onclick="openModal('modalGasto')" class="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs px-2.5 py-1.5 rounded-xl transition active:scale-95 shrink-0">
+            <i data-lucide="plus" class="w-3.5 h-3.5 text-emerald-400 stroke-[3]"></i>
+            <span class="hidden sm:inline">Gasto</span>
+          </button>
         </div>
 
-        <!-- User Profile Area -->
+        <!-- 3. PERFIL DE USUARIO / LOGIN -->
         <div id="userProfileArea" class="flex items-center gap-2 shrink-0">
-          <!-- Logged In View -->
-          <div id="userInfoBlock" class="hidden flex items-center gap-1.5 sm:gap-2">
-            <button type="button" onclick="abrirModalPerfilMobile()" class="flex items-center gap-1.5 focus:outline-none active:scale-95 transition" title="Mi Cuenta y Ajustes">
+          <!-- Vista de usuario autenticado -->
+          <div id="userInfoBlock" class="hidden flex items-center gap-1 sm:gap-1.5">
+            <button type="button" onclick="abrirModalPerfilMobile()" class="flex items-center gap-2 p-1 sm:px-2.5 sm:py-1 rounded-xl hover:bg-slate-800/80 border border-transparent hover:border-slate-800 transition active:scale-95" title="Mi Cuenta y Ajustes">
               <div id="userAvatar" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 font-bold text-xs flex items-center justify-center overflow-hidden shrink-0">
                 U
               </div>
-              <span id="userName" class="text-xs font-semibold text-slate-200 hidden md:inline max-w-[110px] truncate">Usuario</span>
+              <span id="userName" class="text-xs font-semibold text-slate-200 hidden xl:inline max-w-[110px] truncate">Usuario</span>
             </button>
-            <button onclick="logout()" title="Cerrar Sesión" class="p-1 sm:p-1.5 text-slate-400 hover:text-rose-400 rounded-lg hover:bg-slate-800 transition active:scale-95 hidden sm:flex items-center">
-              <i data-lucide="log-out" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+            <button onclick="logout()" title="Cerrar Sesión" class="p-1.5 text-slate-400 hover:text-rose-400 rounded-xl hover:bg-slate-800 transition active:scale-95 hidden sm:flex items-center">
+              <i data-lucide="log-out" class="w-4 h-4"></i>
             </button>
           </div>
-          <!-- Logged Out View -->
-          <button id="btnLoginOpen" onclick="openModal('modalAuth')" class="text-xs bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-semibold px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg transition active:scale-95 flex items-center gap-1.5 shrink-0">
+          <!-- Vista sin iniciar sesión -->
+          <button id="btnLoginOpen" onclick="openModal('modalAuth')" class="text-xs bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-semibold px-3 py-1.5 rounded-xl transition active:scale-95 flex items-center gap-1.5 shrink-0">
             <i data-lucide="log-in" class="w-3.5 h-3.5"></i>
             <span>Ingresar</span>
           </button>
         </div>
+
       </div>
     </div>
+
 
     <!-- SUB-BARRA RESPONSIVA PARA MOBILE: Selector de Espacios (Personal | Negocios | Estudio B2B) -->
     <div id="mobileWorkspaceBar" class="sm:hidden hidden border-t border-slate-800/80 bg-slate-950/95 backdrop-blur-md px-2.5 py-1.5">
