@@ -209,10 +209,21 @@ function showToast(message, type = 'success') {
 
 // Control de Modales
 function openModal(modalId) {
+  if (modalId === 'modalAgenteIA' && currentUser) {
+    const esAdmin = Boolean(currentUser.rol === 'admin' || currentUser.plan_suscripcion === 'admin' || (currentUser.trial && currentUser.trial.esAdmin));
+    const isTrialActivo = Boolean(currentUser.trial && currentUser.trial.activo);
+    const plan = currentUser.plan_suscripcion || 'free';
+    if (!esAdmin && !isTrialActivo && plan === 'free') {
+      mostrarModalBloqueoPlan('ia');
+      return;
+    }
+  }
+
   const modal = document.getElementById(modalId);
   if (modal) {
     modal.classList.remove('hidden');
     modal.style.display = 'flex';
+
     if (modalId === 'modalAuth') {
       const btnCerrar = document.getElementById('btnCerrarModalAuth');
       if (btnCerrar) {
@@ -420,38 +431,67 @@ function updateAuthUI(user) {
 
     const badgePlan = document.getElementById('badgeHeaderPlan');
     const plan = user.plan_suscripcion || 'free';
+    const esAdmin = Boolean(user.rol === 'admin' || plan === 'admin' || (user.trial && user.trial.esAdmin));
+    const isTrial = Boolean(user.trial && user.trial.activo && plan === 'free' && !esAdmin);
+    const isExpirado = Boolean(user.trial && user.trial.expirado && plan === 'free' && !esAdmin);
+
     const labels = {
       free: 'Free',
       pro_personal: 'Pro',
       pro_negocios: 'Negocios',
-      contador_partner: 'Partner B2B'
+      contador_partner: 'Partner B2B',
+      admin: '👑 Creador'
     };
 
     if (badgePlan) {
-      badgePlan.textContent = labels[plan] || 'Free';
-      if (plan === 'free') {
-        badgePlan.className = 'text-[9px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 font-bold uppercase';
-      } else if (plan === 'contador_partner') {
-        badgePlan.className = 'text-[9px] px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-300 font-bold uppercase';
-      } else if (plan === 'pro_negocios') {
-        badgePlan.className = 'text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 font-bold uppercase';
+      if (esAdmin) {
+        badgePlan.textContent = '👑 Creador';
+        badgePlan.className = 'text-[9px] px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-500/30 to-emerald-500/30 text-emerald-300 border border-emerald-500/50 font-bold uppercase shadow-sm';
+        badgePlan.title = 'Cuenta Administrador Vitalicio (Acceso Total Ilimitado)';
+      } else if (isTrial) {
+        badgePlan.textContent = `⏱️ Prueba: ${user.trial.diasRestantes}d`;
+        badgePlan.className = 'text-[9px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 font-bold';
+        badgePlan.title = `Período de prueba completo activo (${user.trial.diasRestantes} días restantes)`;
+      } else if (isExpirado) {
+        badgePlan.textContent = 'Free (Vencido)';
+        badgePlan.className = 'text-[9px] px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40 font-bold uppercase';
+        badgePlan.title = 'Prueba finalizada. Haz clic para activar tu suscripción.';
       } else {
-        badgePlan.className = 'text-[9px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-400 font-bold uppercase';
+        badgePlan.textContent = labels[plan] || 'Free';
+        if (plan === 'contador_partner') {
+          badgePlan.className = 'text-[9px] px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-300 font-bold uppercase';
+        } else if (plan === 'pro_negocios') {
+          badgePlan.className = 'text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 font-bold uppercase';
+        } else if (plan === 'pro_personal') {
+          badgePlan.className = 'text-[9px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-400 font-bold uppercase';
+        } else {
+          badgePlan.className = 'text-[9px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 font-bold uppercase';
+        }
       }
     }
 
     if (mobileProfilePlanBadge) {
-      mobileProfilePlanBadge.textContent = labels[plan] || 'Free';
-      if (plan === 'free') {
-        mobileProfilePlanBadge.className = 'text-[10px] px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 font-bold uppercase shrink-0';
-      } else if (plan === 'contador_partner') {
-        mobileProfilePlanBadge.className = 'text-[10px] px-2.5 py-1 rounded-full bg-cyan-500/20 text-cyan-300 font-bold uppercase shrink-0';
-      } else if (plan === 'pro_negocios') {
-        mobileProfilePlanBadge.className = 'text-[10px] px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 font-bold uppercase shrink-0';
+      if (esAdmin) {
+        mobileProfilePlanBadge.textContent = '👑 Administrador / Creador';
+        mobileProfilePlanBadge.className = 'text-[10px] px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold uppercase shrink-0';
+      } else if (isTrial) {
+        mobileProfilePlanBadge.textContent = `Prueba Gratuita (${user.trial.diasRestantes} días restantes)`;
+        mobileProfilePlanBadge.className = 'text-[10px] px-2.5 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 font-bold shrink-0';
+      } else if (isExpirado) {
+        mobileProfilePlanBadge.textContent = 'Free (Prueba Finalizada)';
+        mobileProfilePlanBadge.className = 'text-[10px] px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40 font-bold shrink-0';
       } else {
-        mobileProfilePlanBadge.className = 'text-[10px] px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 font-bold uppercase shrink-0';
+        mobileProfilePlanBadge.textContent = labels[plan] || 'Free';
+        if (plan === 'contador_partner') {
+          mobileProfilePlanBadge.className = 'text-[10px] px-2.5 py-1 rounded-full bg-cyan-500/20 text-cyan-300 font-bold uppercase shrink-0';
+        } else if (plan === 'pro_negocios') {
+          mobileProfilePlanBadge.className = 'text-[10px] px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 font-bold uppercase shrink-0';
+        } else {
+          mobileProfilePlanBadge.className = 'text-[10px] px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 font-bold uppercase shrink-0';
+        }
       }
     }
+
   } else {
     currentUser = null;
     if (userInfoBlock) userInfoBlock.classList.add('hidden');
@@ -3442,13 +3482,52 @@ function exportarGastosCSV() {
 // MODO MULTI-ESPACIO: PERSONAL VS NEGOCIOS VS CONTADOR B2B
 // ==========================================
 
+function mostrarModalBloqueoPlan(modulo) {
+  const elTitulo = document.getElementById('bloqueoPlanTitulo');
+  const elMensaje = document.getElementById('bloqueoPlanMensaje');
+  if (modulo === 'negocios') {
+    if (elTitulo) elTitulo.textContent = 'Métrica Negocios & Freelancers';
+    if (elMensaje) elMensaje.textContent = 'El control de clientes, emisión de facturas y el termómetro de Monotributo AFIP requieren el Plan Negocios. Tu período de prueba de 15 días ha concluido.';
+  } else if (modulo === 'contador') {
+    if (elTitulo) elTitulo.textContent = 'Métrica Contador Partner B2B';
+    if (elMensaje) elMensaje.textContent = 'El panel multi-cliente con semáforo de Monotributo, alertas de WhatsApp y reportes para estudios contables es exclusivo del Plan Contador Partner.';
+  } else if (modulo === 'ia') {
+    if (elTitulo) elTitulo.textContent = 'Copiloto Financiero IA';
+    if (elMensaje) elMensaje.textContent = 'El asistente financiero inteligente con visión OCR de tickets y chat ilimitado requiere el Plan Pro Personal o superior.';
+  }
+  openModal('modalBloqueoPlan');
+  if (window.lucide) lucide.createIcons();
+}
+
 function switchWorkspaceMode(mode) {
+  // Validación de acceso (Admin, Free Trial 15 días o Plan Contratado)
+  if (currentUser) {
+    const esAdmin = Boolean(currentUser.rol === 'admin' || currentUser.plan_suscripcion === 'admin' || (currentUser.trial && currentUser.trial.esAdmin));
+    const isTrialActivo = Boolean(currentUser.trial && currentUser.trial.activo);
+    const plan = currentUser.plan_suscripcion || 'free';
+
+    if (mode === 'negocios') {
+      const tieneAcceso = esAdmin || isTrialActivo || plan === 'pro_negocios' || plan === 'contador_partner';
+      if (!tieneAcceso) {
+        mostrarModalBloqueoPlan('negocios');
+        return;
+      }
+    } else if (mode === 'contador') {
+      const tieneAcceso = esAdmin || isTrialActivo || plan === 'contador_partner';
+      if (!tieneAcceso) {
+        mostrarModalBloqueoPlan('contador');
+        return;
+      }
+    }
+  }
+
   currentWorkspaceMode = mode;
   localStorage.setItem('metrica_active_mode', mode);
 
   const wsPersonal = document.getElementById('workspacePersonal');
   const wsNegocios = document.getElementById('workspaceNegocios');
   const wsContador = document.getElementById('workspaceContador');
+
   const btnPersonal = document.getElementById('btnModePersonal');
   const btnNegocios = document.getElementById('btnModeNegocios');
   const btnContador = document.getElementById('btnModeContador');

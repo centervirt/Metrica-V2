@@ -43,11 +43,15 @@ function runMigrations() {
         }
     }
 
-    // Migración para usuarios: plan_suscripcion
+    // Migración para usuarios: plan_suscripcion y rol
     const userColumns = db.prepare('PRAGMA table_info(usuarios)').all();
     if (!userColumns.some(col => col.name === 'plan_suscripcion')) {
         console.log('Migrando tabla usuarios: agregando columna plan_suscripcion...');
         db.exec("ALTER TABLE usuarios ADD COLUMN plan_suscripcion TEXT DEFAULT 'free'");
+    }
+    if (!userColumns.some(col => col.name === 'rol')) {
+        console.log('Migrando tabla usuarios: agregando columna rol...');
+        db.exec("ALTER TABLE usuarios ADD COLUMN rol TEXT DEFAULT 'user'");
     }
 }
 

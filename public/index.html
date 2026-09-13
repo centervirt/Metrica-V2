@@ -3688,8 +3688,57 @@
     </div>
   </div>
 
+  <!-- MODAL DE BLOQUEO / PAYWALL DE TRIAL EXPIRADO -->
+  <div id="modalBloqueoPlan" class="fixed inset-0 z-50 hidden bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 sm:p-7 space-y-5 shadow-2xl relative text-center">
+      <button onclick="closeModal('modalBloqueoPlan')" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="w-14 h-14 mx-auto rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-lg shadow-amber-500/10">
+        <i data-lucide="lock" class="w-7 h-7"></i>
+      </div>
+
+      <div class="space-y-2">
+        <span class="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">
+          Período de Prueba Finalizado
+        </span>
+        <h3 id="bloqueoPlanTitulo" class="font-bold text-lg text-white">Función Exclusiva Pro</h3>
+        <p id="bloqueoPlanMensaje" class="text-xs text-slate-300 leading-relaxed">
+          Tu período de prueba de 15 días ha concluido. Elige un plan para seguir disfrutando de todas las herramientas avanzadas sin interrupciones.
+        </p>
+      </div>
+
+      <div class="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 text-left space-y-2 text-xs text-slate-300">
+        <div class="flex items-center gap-2">
+          <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+          <span>Tus datos cargados están 100% seguros y respaldados</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+          <span>Cancela o cambia de plan en cualquier momento</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+          <span>Cobro dinámico en Pesos referenciado al Dólar MEP</span>
+        </div>
+      </div>
+
+      <div class="space-y-2 pt-1">
+        <button onclick="closeModal('modalBloqueoPlan'); abrirModalPricing();" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold text-xs transition shadow-lg shadow-emerald-500/20 active:scale-95 flex items-center justify-center gap-2">
+          <i data-lucide="sparkles" class="w-4 h-4"></i>
+          <span>Ver Planes & Suscribirme</span>
+        </button>
+        <button onclick="closeModal('modalBloqueoPlan'); switchWorkspaceMode('personal');" class="w-full py-2 text-xs font-semibold text-slate-400 hover:text-white transition">
+          Continuar en Finanzas Personales (Versión Gratuita)
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL DE PRICING DINÁMICO BIMONETARIO (CONDICIÓN 1 TERM SHEET) -->
   <div id="modalPricing" class="fixed inset-0 z-50 hidden bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-4">
+
     <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-5xl w-full p-5 sm:p-7 space-y-6 shadow-2xl max-h-[92vh] overflow-y-auto">
       
       <!-- Header -->

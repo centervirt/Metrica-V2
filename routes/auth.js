@@ -7,6 +7,71 @@ const JWT_SECRET = process.env.JWT_SECRET || 'metrica-super-secret-jwt-key-2026'
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
 
 /**
+ * Calcula el estado de suscripción, rol de administrador y días restantes del Free Trial
+ */
+function calcularEstadoUsuario(rawUser) {
+    if (!rawUser) return null;
+    const adminEmail = (process.env.ADMIN_EMAIL || '').trim().toLowerCase();
+    const esAdmin = Boolean(
+        (adminEmail && rawUser.email && rawUser.email.trim().toLowerCase() === adminEmail) ||
+        rawUser.rol === 'admin' ||
+        rawUser.plan_suscripcion === 'admin'
+    );
+
+    let plan = rawUser.plan_suscripcion || 'free';
+    let rol = rawUser.rol || 'user';
+
+    if (esAdmin) {
+        plan = 'admin';
+        rol = 'admin';
+        // Persistir en DB si aún no estaba seteado como admin
+        if (rawUser.rol !== 'admin' || rawUser.plan_suscripcion !== 'admin') {
+            try {
+                db.prepare('UPDATE usuarios SET rol = ?, plan_suscripcion = ? WHERE id = ?').run('admin', 'admin', rawUser.id);
+            } catch (e) {
+                console.warn('No se pudo actualizar rol admin en DB:', e);
+            }
+        }
+    }
+
+    // Cálculo del Free Trial (15 días corridos desde creado_en)
+    let diasRestantesTrial = 0;
+    let isTrialActivo = false;
+
+    if (esAdmin) {
+        isTrialActivo = true;
+        diasRestantesTrial = 999;
+    } else if (plan !== 'free') {
+        // Usuario con plan de pago
+        isTrialActivo = true;
+        diasRestantesTrial = 0;
+    } else {
+        // Plan Free: calcular días transcurridos desde fecha de creación
+        const fechaRegistro = rawUser.creado_en ? new Date(rawUser.creado_en) : new Date();
+        const diffMs = Date.now() - fechaRegistro.getTime();
+        const diasPasados = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+        diasRestantesTrial = Math.max(0, 15 - diasPasados);
+        isTrialActivo = diasRestantesTrial > 0;
+    }
+
+    return {
+        id: rawUser.id,
+        email: rawUser.email,
+        nombre: rawUser.nombre,
+        avatar_url: rawUser.avatar_url,
+        plan_suscripcion: plan,
+        rol: rol,
+        creado_en: rawUser.creado_en,
+        trial: {
+            esAdmin,
+            activo: isTrialActivo,
+            diasRestantes: diasRestantesTrial,
+            expirado: !isTrialActivo && plan === 'free'
+        }
+    };
+}
+
+/**
  * Middleware para proteger rutas y verificar el JWT
  */
 function authMiddleware(req, res, next) {
@@ -18,11 +83,11 @@ function authMiddleware(req, res, next) {
     const token = authHeader.split(' ')[1];
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
-        const user = db.prepare('SELECT id, email, nombre, avatar_url FROM usuarios WHERE id = ?').get(decoded.id);
-        if (!user) {
+        const rawUser = db.prepare('SELECT id, email, nombre, avatar_url, plan_suscripcion, rol, creado_en FROM usuarios WHERE id = ?').get(decoded.id);
+        if (!rawUser) {
             return res.status(401).json({ error: 'Usuario inexistente o dado de baja' });
         }
-        req.user = user;
+        req.user = calcularEstadoUsuario(rawUser);
         next();
     } catch (err) {
         return res.status(401).json({ error: 'Token inválido o expirado' });
@@ -37,6 +102,7 @@ function generarToken(user) {
         { expiresIn: '30d' }
     );
 }
+
 
 // Configuración pública de autenticación (Client ID de Google)
 router.get('/config', (req, res) => {
@@ -72,10 +138,11 @@ router.post('/register', (req, res) => {
             VALUES (?, ?, ?)
         `);
         const info = stmt.run(nombre.trim(), emailLimpio, passwordHash);
-        const nuevoUsuario = db.prepare('SELECT id, email, nombre, avatar_url FROM usuarios WHERE id = ?').get(info.lastInsertRowid);
+        const rawNuevoUsuario = db.prepare('SELECT id, email, nombre, avatar_url, plan_suscripcion, rol, creado_en FROM usuarios WHERE id = ?').get(info.lastInsertRowid);
+        const userCalculado = calcularEstadoUsuario(rawNuevoUsuario);
 
-        const token = generarToken(nuevoUsuario);
-        res.status(201).json({ token, user: nuevoUsuario });
+        const token = generarToken(userCalculado);
+        res.status(201).json({ token, user: userCalculado });
     } catch (error) {
         console.error('Error en registro:', error);
         res.status(500).json({ error: 'Error al registrar usuario' });
@@ -94,7 +161,7 @@ router.post('/login', (req, res) => {
         }
 
         const emailLimpio = email.trim().toLowerCase();
-        const user = db.prepare('SELECT * FROM usuarios WHERE email = ?').get(emailLimpio);
+        const user = db.prepare('SELECT id, email, nombre, avatar_url, password_hash, plan_suscripcion, rol, creado_en FROM usuarios WHERE email = ?').get(emailLimpio);
 
         if (!user || !user.password_hash) {
             return res.status(401).json({ error: 'Credenciales inválidas' });
@@ -105,15 +172,9 @@ router.post('/login', (req, res) => {
             return res.status(401).json({ error: 'Credenciales inválidas' });
         }
 
-        const userSanitizado = {
-            id: user.id,
-            email: user.email,
-            nombre: user.nombre,
-            avatar_url: user.avatar_url
-        };
-
-        const token = generarToken(userSanitizado);
-        res.json({ token, user: userSanitizado });
+        const userCalculado = calcularEstadoUsuario(user);
+        const token = generarToken(userCalculado);
+        res.json({ token, user: userCalculado });
     } catch (error) {
         console.error('Error en login:', error);
         res.status(500).json({ error: 'Error al iniciar sesión' });
@@ -145,7 +206,7 @@ router.post('/google', async (req, res) => {
         }
 
         const emailLimpio = email.toLowerCase();
-        let user = db.prepare('SELECT * FROM usuarios WHERE google_id = ? OR email = ?').get(googleId, emailLimpio);
+        let user = db.prepare('SELECT id, email, nombre, avatar_url, plan_suscripcion, rol, creado_en FROM usuarios WHERE google_id = ? OR email = ?').get(googleId, emailLimpio);
 
         if (user) {
             // Actualizar avatar o google_id si faltaba
@@ -154,29 +215,25 @@ router.post('/google', async (req, res) => {
                 SET google_id = COALESCE(google_id, ?), avatar_url = COALESCE(?, avatar_url)
                 WHERE id = ?
             `).run(googleId, picture || null, user.id);
+            user = db.prepare('SELECT id, email, nombre, avatar_url, plan_suscripcion, rol, creado_en FROM usuarios WHERE id = ?').get(user.id);
         } else {
             // Crear usuario nuevo con Google
             const info = db.prepare(`
                 INSERT INTO usuarios (nombre, email, google_id, avatar_url)
                 VALUES (?, ?, ?, ?)
             `).run(name || 'Usuario Google', emailLimpio, googleId, picture || null);
-            user = db.prepare('SELECT * FROM usuarios WHERE id = ?').get(info.lastInsertRowid);
+            user = db.prepare('SELECT id, email, nombre, avatar_url, plan_suscripcion, rol, creado_en FROM usuarios WHERE id = ?').get(info.lastInsertRowid);
         }
 
-        const userSanitizado = {
-            id: user.id,
-            email: user.email,
-            nombre: user.nombre,
-            avatar_url: user.avatar_url || picture
-        };
-
-        const token = generarToken(userSanitizado);
-        res.json({ token, user: userSanitizado });
+        const userCalculado = calcularEstadoUsuario(user);
+        const token = generarToken(userCalculado);
+        res.json({ token, user: userCalculado });
     } catch (error) {
         console.error('Error en autenticación con Google:', error);
         res.status(500).json({ error: 'Error al procesar el ingreso con Google' });
     }
 });
+
 
 // ==========================================
 // 4. PERFIL ACTUAL (ME)

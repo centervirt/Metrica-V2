@@ -1409,9 +1409,50 @@ const ESCALAS_MONOTRIBUTO = {
     K: 126610638.75
 };
 
+/**
+ * Middleware para validar acceso a módulos según Free Trial (15 días), Plan contratado o Rol Administrador
+ */
+function verificarAccesoPlan(modulo) {
+    return (req, res, next) => {
+        const user = req.user;
+        if (!user) return res.status(401).json({ error: 'No autorizado' });
+
+        // Administrador: acceso total siempre
+        if (user.rol === 'admin' || user.plan_suscripcion === 'admin') {
+            return next();
+        }
+
+        // Free Trial activo (primeros 15 días): acceso total a todo
+        if (user.trial && user.trial.activo) {
+            return next();
+        }
+
+        // Si el trial expiró, validar el plan contratado
+        const plan = user.plan_suscripcion || 'free';
+        if (modulo === 'negocio' && (plan === 'pro_negocios' || plan === 'contador_partner')) {
+            return next();
+        }
+        if (modulo === 'contador' && plan === 'contador_partner') {
+            return next();
+        }
+        if (modulo === 'ia' && plan !== 'free') {
+            return next();
+        }
+
+        return res.status(403).json({
+            error: 'Tu período de prueba de 15 días ha finalizado. Suscríbete a un plan para continuar.',
+            codigo: 'TRIAL_EXPIRADO',
+            moduloRequerido: modulo
+        });
+    };
+}
+
+// Proteger rutas de Negocios
+router.use('/negocio', verificarAccesoPlan('negocio'));
 
 // Resumen General del Negocio
 router.get('/negocio/resumen', (req, res) => {
+
     try {
         const userId = req.user.id;
         const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
@@ -1898,7 +1939,10 @@ router.post('/subscription/upgrade', (req, res) => {
 // SECCIÓN 2: MÉTRICA CONTADOR PARTNER B2B (CONDICIÓN 2 TERM SHEET)
 // ==========================================
 
+router.use('/contador', verificarAccesoPlan('contador'));
+
 router.get('/contador/resumen', (req, res) => {
+
     try {
         const userId = req.user.id;
         const clientes = db.prepare(`

@@ -7,6 +7,26 @@ const { authMiddleware } = require('./auth');
 // Proteger todas las rutas del agente con autenticación
 router.use(authMiddleware);
 
+// Validar acceso: Administrador, Free Trial activo (15 días) o Planes Pro / Negocios / Partner
+router.use((req, res, next) => {
+    const user = req.user;
+    if (!user) return res.status(401).json({ error: 'No autorizado' });
+
+    // Administrador: acceso total siempre
+    if (user.rol === 'admin' || user.plan_suscripcion === 'admin') return next();
+
+    // Free Trial activo: acceso total
+    if (user.trial && user.trial.activo) return next();
+
+    // Plan pago contratado: acceso habilitado
+    if (user.plan_suscripcion && user.plan_suscripcion !== 'free') return next();
+
+    return res.status(403).json({
+        error: 'Tu período de prueba de 15 días ha finalizado. Suscríbete a un plan para seguir utilizando el Copiloto IA.',
+        codigo: 'TRIAL_EXPIRADO'
+    });
+});
+
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 const isKeyConfigured = GEMINI_API_KEY && GEMINI_API_KEY !== 'your_gemini_api_key_here';
 
