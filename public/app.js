@@ -5100,29 +5100,93 @@ async function handleContratarPlan(planId) {
     return;
   }
 
+  // Si es el plan gratuito
+  if (planId === 'starter' || planId === 'free') {
+    try {
+      const res = await authFetch('/api/subscription/upgrade', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan: 'free' })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        if (currentUser) currentUser.plan_suscripcion = 'free';
+        updateAuthUI(currentUser);
+        closeModal('modalPricing');
+        showToast('Plan gratuito activo');
+      }
+    } catch (e) {
+      showToast('Error al cambiar a plan gratuito', 'error');
+    }
+    return;
+  }
+
+  // Planes de pago con Mercado Pago
+  showToast('Conectando con Mercado Pago...', 'info');
   try {
-    const res = await authFetch('/api/subscription/upgrade', {
+    const res = await authFetch('/api/mercadopago/crear-checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ plan: planId })
+      body: JSON.stringify({
+        planId: planId,
+        periodo: currentPricingPeriodo || 'mensual'
+      })
     });
 
     const data = await res.json();
-    if (res.ok) {
-      if (currentUser) currentUser.plan_suscripcion = planId;
-      updateAuthUI(currentUser);
-      closeModal('modalPricing');
-      showToast(data.mensaje || '¡Suscripción actualizada con éxito!');
-      if (planId === 'contador_partner') {
-        switchWorkspaceMode('contador');
-      } else if (planId === 'pro_negocios') {
-        switchWorkspaceMode('negocios');
-      }
-    } else {
-      showToast(data.error || 'Error al procesar suscripción', 'error');
+
+    if (!res.ok) {
+      showToast(data.error || 'Error al conectar con Mercado Pago', 'error');
+      return;
     }
+
+    // Si es Administrador
+    if (data.admin) {
+      closeModal('modalPricing');
+      showToast(data.mensaje);
+      return;
+    }
+
+    // Modo simulación local (cuando aún no se configuró el MP_ACCESS_TOKEN)
+    if (data.modo_simulacion) {
+      if (data.user && currentUser) {
+        currentUser.plan_suscripcion = data.user.plan_suscripcion;
+        updateAuthUI(currentUser);
+      }
+      closeModal('modalPricing');
+      showToast(data.mensaje);
+      if (planId === 'contador_partner') switchWorkspaceMode('contador');
+      if (planId === 'pro_negocios') switchWorkspaceMode('negocios');
+      return;
+    }
+
+    // Redirección oficial al Checkout de Mercado Pago
+    if (data.init_point) {
+      closeModal('modalPricing');
+      showToast('Redirigiendo a Mercado Pago para confirmar tu suscripción...', 'info');
+      setTimeout(() => {
+        window.location.href = data.init_point;
+      }, 800);
+    } else {
+      showToast('No se pudo generar el enlace de pago', 'error');
+    }
+
   } catch (err) {
-    showToast('Error de conexión al procesar suscripción', 'error');
+    console.error('Error al iniciar checkout Mercado Pago:', err);
+    showToast('Error de conexión con la pasarela de pagos', 'error');
+  }
+}
+
+function verificarRetornoMercadoPago() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const mpStatus = urlParams.get('mp_status');
+  const plan = urlParams.get('plan');
+  if (mpStatus === 'approved') {
+    showToast(`🎉 ¡Pago confirmado en Mercado Pago! Tu plan ${plan ? plan.toUpperCase().replace('_', ' ') : ''} se ha activado con éxito.`);
+    window.history.replaceState({}, document.title, window.location.pathname);
+  } else if (mpStatus === 'failure') {
+    showToast('El pago en Mercado Pago no se completó. Puedes volver a intentarlo.', 'error');
+    window.history.replaceState({}, document.title, window.location.pathname);
   }
 }
 
@@ -5131,6 +5195,8 @@ async function handleContratarPlan(planId) {
 // ==========================================
 
 async function checkSession() {
+  verificarRetornoMercadoPago();
+
   if (!authToken) {
     resetDashboardView();
     openModal('modalAuth');

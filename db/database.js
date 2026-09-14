@@ -54,6 +54,21 @@ function runMigrations() {
         db.exec("ALTER TABLE usuarios ADD COLUMN rol TEXT DEFAULT 'user'");
     }
 
+    // Columnas para Mercado Pago en usuarios
+    const mpCols = [
+        { name: 'mp_preapproval_id', type: 'TEXT' },
+        { name: 'mp_estado', type: 'TEXT' },
+        { name: 'mp_periodo', type: 'TEXT' },
+        { name: 'mp_fecha_inicio', type: 'TEXT' },
+        { name: 'mp_fecha_proximo_cobro', type: 'TEXT' }
+    ];
+    for (const col of mpCols) {
+        if (!userColumns.some(c => c.name === col.name)) {
+            console.log(`Migrando tabla usuarios: agregando columna ${col.name}...`);
+            db.exec(`ALTER TABLE usuarios ADD COLUMN ${col.name} ${col.type}`);
+        }
+    }
+
     // Migración para tabla inversiones: permitir Accion y Bono
     try {
         const invDef = db.prepare("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'inversiones'").get();

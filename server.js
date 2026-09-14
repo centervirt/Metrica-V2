@@ -27,6 +27,7 @@ try {
 app.use('/api/auth', require('./routes/auth').router);
 app.use('/api', require('./routes/api'));
 app.use('/api/agente', require('./routes/agente'));
+app.use('/api/mercadopago', require('./routes/mercadopago'));
 
 app.get('/health', (req, res) => {
     res.json({ status: 'OK', message: 'Metrica V1 API is running' });
