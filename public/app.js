@@ -9,6 +9,7 @@ let currentGastosList = [];
 let currentGastoEnPago = null;
 let currentInversionesList = [];
 let currentCuentasList = [];
+let currentIngresosList = [];
 let debounceTimerInversion = null;
 let currentEstrategiaDeuda = 'bolaDeNieve';
 let catalogoEstrategiasDeuda = null;
@@ -118,10 +119,10 @@ function actualizarIconoPrivacidad() {
   }
   if (btn) {
     if (isPrivacyModeActive) {
-      btn.className = 'p-1.5 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/40 transition active:scale-95 flex items-center justify-center shrink-0';
+      btn.className = 'p-1.5 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-300 shadow-[0_0_10px_rgba(245,158,11,0.2)] transition active:scale-95 flex items-center justify-center shrink-0';
       btn.setAttribute('title', 'Modo Privacidad Activo (Clic para ver montos)');
     } else {
-      btn.className = 'p-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-700/60 transition active:scale-95 flex items-center justify-center shrink-0';
+      btn.className = 'p-1.5 rounded-xl bg-[#0d1522] hover:bg-[#121c2e] text-slate-400 hover:text-cyan-300 border border-slate-800/80 hover:border-cyan-500/30 transition active:scale-95 flex items-center justify-center shrink-0';
       btn.setAttribute('title', 'Alternar Modo Privacidad (Ocultar montos)');
     }
   }
@@ -146,11 +147,11 @@ function actualizarBotonesMoneda() {
   const btnUsd = document.getElementById('btnCurrencyUSD');
   if (btnArs && btnUsd) {
     if (currentMonedaGlobal === 'USD') {
-      btnUsd.className = 'px-2 py-0.5 rounded bg-emerald-500 text-slate-950 font-bold transition';
-      btnArs.className = 'px-2 py-0.5 rounded text-slate-400 hover:text-white transition';
+      btnUsd.className = 'px-2 py-0.5 rounded-lg bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-400/50 shadow-[0_0_10px_rgba(0,242,254,0.25)] transition';
+      btnArs.className = 'px-2 py-0.5 rounded-lg text-slate-400 hover:text-slate-200 transition';
     } else {
-      btnArs.className = 'px-2 py-0.5 rounded bg-emerald-500 text-slate-950 font-bold transition';
-      btnUsd.className = 'px-2 py-0.5 rounded text-slate-400 hover:text-white transition';
+      btnArs.className = 'px-2 py-0.5 rounded-lg bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-400/50 shadow-[0_0_10px_rgba(0,242,254,0.25)] transition';
+      btnUsd.className = 'px-2 py-0.5 rounded-lg text-slate-400 hover:text-slate-200 transition';
     }
   }
 }
@@ -270,23 +271,23 @@ function switchTab(tabName) {
   if (activeContent) activeContent.classList.remove('hidden');
 
   document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.classList.remove('border-emerald-500', 'text-emerald-400');
+    btn.classList.remove('border-cyan-400', 'text-cyan-300', 'font-bold', 'border-emerald-500', 'text-emerald-400');
     btn.classList.add('border-transparent', 'text-slate-400');
   });
   const activeBtn = document.getElementById(`tabBtn-${tabName}`);
   if (activeBtn) {
     activeBtn.classList.remove('border-transparent', 'text-slate-400');
-    activeBtn.classList.add('border-emerald-500', 'text-emerald-400');
+    activeBtn.classList.add('border-cyan-400', 'text-cyan-300', 'font-bold');
   }
 
   document.querySelectorAll('.bottom-nav-btn').forEach(btn => {
-    btn.classList.remove('text-emerald-400', 'font-semibold');
+    btn.classList.remove('text-teal-300', 'font-bold', 'text-emerald-400', 'font-semibold');
     btn.classList.add('text-slate-400');
   });
   const activeBottomBtn = document.getElementById(`bottomNav-${tabName}`);
   if (activeBottomBtn) {
     activeBottomBtn.classList.remove('text-slate-400');
-    activeBottomBtn.classList.add('text-emerald-400', 'font-semibold');
+    activeBottomBtn.classList.add('text-teal-300', 'font-bold');
   }
 
   if (tabName === 'aprender') {
@@ -638,6 +639,10 @@ function resetDashboardView() {
   if (elBalance) elBalance.textContent = '$ 0';
   if (elPagado) elPagado.textContent = '$ 0';
   if (elDisponible) elDisponible.textContent = '$ 0';
+  currentIngresosList = [];
+  currentGastosList = [];
+  currentCuentasList = [];
+  currentInversionesList = [];
 }
 
 // Configuración y respuesta de Google Identity Services
@@ -906,7 +911,14 @@ async function loadCuentas() {
     currentCuentasList = cuentas;
 
     const grid = document.getElementById('gridCuentas');
-    document.getElementById('kpiCuentasCount').textContent = `${cuentas.length} cuentas`;
+    const elCuentasCount = document.getElementById('kpiCuentasCount');
+    if (elCuentasCount) {
+      if (!cuentas || cuentas.length === 0) {
+        elCuentasCount.textContent = '¡Conecta tu primera cuenta!';
+      } else {
+        elCuentasCount.textContent = `${cuentas.length} ${cuentas.length === 1 ? 'cuenta activa' : 'cuentas activas'}`;
+      }
+    }
 
     if (!cuentas || cuentas.length === 0) {
       grid.innerHTML = `
@@ -1086,6 +1098,7 @@ async function loadIngresos() {
     const res = await authFetch(`${API_BASE}/ingresos`);
     if (!res.ok) throw new Error('Error al cargar ingresos');
     const ingresos = await res.json();
+    currentIngresosList = ingresos || [];
 
     const tbody = document.getElementById('tablaIngresosBody');
     const mobileList = document.getElementById('listaIngresosMobile');
@@ -1202,152 +1215,411 @@ async function loadFlujoAnual(year = selectedChartYear) {
       elBalance.className = `text-xs font-bold ${data.balanceAnual >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
     }
 
-    const canvas = document.getElementById('chartFlujoAnual');
-    if (!canvas || !window.Chart) return;
-    const ctx = canvas.getContext('2d');
+    currentFlujoAnualData = data;
+    renderFlujoAnualChart(data);
+  } catch (err) {
+    console.error('Error cargando gráfico de flujo:', err);
+  }
+}
 
-    if (flujoChartInstance) {
-      flujoChartInstance.destroy();
-    }
+let currentFlujoAnualData = null;
+let currentChartType = 'line'; // 'line', 'bar', 'doughnut'
 
-    // Gradientes suaves para el relleno
-    const gradIngresos = ctx.createLinearGradient(0, 0, 0, 240);
-    gradIngresos.addColorStop(0, 'rgba(16, 185, 129, 0.20)');
-    gradIngresos.addColorStop(1, 'rgba(16, 185, 129, 0.00)');
+function setChartType(type) {
+  if (type !== 'line' && type !== 'bar' && type !== 'doughnut') return;
+  currentChartType = type;
 
-    const gradGastos = ctx.createLinearGradient(0, 0, 0, 240);
-    gradGastos.addColorStop(0, 'rgba(244, 63, 94, 0.15)');
-    gradGastos.addColorStop(1, 'rgba(244, 63, 94, 0.00)');
+  const btnLine = document.getElementById('btnChartTypeLine');
+  const btnBar = document.getElementById('btnChartTypeBar');
+  const btnPie = document.getElementById('btnChartTypePie');
 
-    const gradDisponible = ctx.createLinearGradient(0, 0, 0, 240);
-    gradDisponible.addColorStop(0, 'rgba(56, 189, 248, 0.25)');
-    gradDisponible.addColorStop(1, 'rgba(56, 189, 248, 0.00)');
+  const activoClass = 'px-2 sm:px-2.5 py-1 rounded-lg bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-400/50 shadow-[0_0_8px_rgba(0,242,254,0.2)] transition flex items-center gap-1.5';
+  const inactivoClass = 'px-2 sm:px-2.5 py-1 rounded-lg text-slate-400 hover:text-white transition flex items-center gap-1.5';
+
+  if (btnLine) btnLine.className = type === 'line' ? activoClass : inactivoClass;
+  if (btnBar) btnBar.className = type === 'bar' ? activoClass : inactivoClass;
+  if (btnPie) btnPie.className = type === 'doughnut' ? activoClass : inactivoClass;
+
+  if (currentFlujoAnualData) {
+    renderFlujoAnualChart(currentFlujoAnualData);
+  }
+  if (window.lucide) lucide.createIcons();
+}
+
+function renderFlujoAnualChart(data) {
+  const canvas = document.getElementById('chartFlujoAnual');
+  if (!canvas || !window.Chart) return;
+  const ctx = canvas.getContext('2d');
+
+  if (flujoChartInstance) {
+    flujoChartInstance.destroy();
+  }
+
+  // MODO 1: GRÁFICO DE TORTA / DOUGHNUT (DISTRIBUCIÓN)
+  if (currentChartType === 'doughnut') {
+    const totalDisp = Math.max(0, data.totalDineroDisponibleAnual || 0);
+    const totalPagado = Math.max(0, data.totalPagadoAnual || 0);
+    const totalPendiente = Math.max(0, (data.totalGastosAnual || 0) - totalPagado);
+
+    const labels = ['Disponible / Superávit', 'Gastos Ya Pagados', 'Gastos Por Vencer'];
+    const valores = [totalDisp, totalPagado, totalPendiente];
+    const colores = [
+      'rgba(45, 212, 191, 0.85)', // Teal neón
+      'rgba(56, 189, 248, 0.85)', // Cyan brillante
+      'rgba(244, 63, 94, 0.85)'   // Coral neón
+    ];
+    const bordes = ['#090e17', '#090e17', '#090e17'];
 
     flujoChartInstance = new Chart(ctx, {
-      type: 'line',
+      type: 'doughnut',
       data: {
-        labels: data.meses,
-        datasets: [
-          {
-            label: 'Ingresos',
-            data: data.ingresos,
-            borderColor: '#10b981',
-            backgroundColor: gradIngresos,
-            borderWidth: 2,
-            pointBackgroundColor: '#10b981',
-            pointBorderColor: '#020617',
-            pointBorderWidth: 2,
-            pointRadius: 3.5,
-            pointHoverRadius: 6,
-            fill: false,
-            tension: 0.3
-          },
-          {
-            label: 'Dinero Disponible',
-            data: data.dineroDisponible || data.ingresos,
-            borderColor: '#38bdf8',
-            backgroundColor: gradDisponible,
-            borderWidth: 2.8,
-            pointBackgroundColor: '#38bdf8',
-            pointBorderColor: '#020617',
-            pointBorderWidth: 2,
-            pointRadius: 4.5,
-            pointHoverRadius: 7,
-            fill: true,
-            tension: 0.3
-          },
-          {
-            label: 'Gastos Totales',
-            data: data.gastos,
-            borderColor: '#f43f5e',
-            backgroundColor: gradGastos,
-            borderWidth: 2,
-            pointBackgroundColor: '#f43f5e',
-            pointBorderColor: '#020617',
-            pointBorderWidth: 2,
-            pointRadius: 3.5,
-            pointHoverRadius: 6,
-            fill: false,
-            tension: 0.3
-          }
-        ]
+        labels: labels,
+        datasets: [{
+          data: valores,
+          backgroundColor: colores,
+          borderColor: bordes,
+          borderWidth: 3,
+          hoverOffset: 10
+        }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        interaction: {
-          mode: 'index',
-          intersect: false
-        },
+        cutout: '65%',
         plugins: {
           legend: {
             display: true,
             position: 'top',
-            align: 'end',
+            align: 'center',
             labels: {
-              color: '#94a3b8',
-              boxWidth: 10,
+              color: '#cbd5e1',
+              boxWidth: 12,
               usePointStyle: true,
-              font: { size: 11, family: 'Inter' }
+              font: { size: 11, family: 'Inter', weight: '600' },
+              padding: 16
             }
           },
           tooltip: {
-            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+            backgroundColor: 'rgba(9, 14, 23, 0.96)',
             titleColor: '#f8fafc',
             bodyColor: '#cbd5e1',
-            borderColor: '#334155',
+            borderColor: '#1a273a',
             borderWidth: 1,
-            padding: 10,
-            boxPadding: 4,
-            usePointStyle: true,
+            padding: 12,
+            cornerRadius: 12,
             callbacks: {
               label: function(context) {
-                return ` ${context.dataset.label}: ${formatMoney(context.parsed.y)}`;
-              },
-              afterBody: function(items) {
-                const ing = items.find(i => i.dataset.label === 'Ingresos')?.parsed.y || 0;
-                const disp = items.find(i => i.dataset.label === 'Dinero Disponible')?.parsed.y || 0;
-                const gas = items.find(i => i.dataset.label === 'Gastos Totales')?.parsed.y || 0;
-                const pagado = ing - disp;
-                const restanteComprometido = Math.max(0, gas - pagado);
-
-                return [
-                  ` Ya Pagado en efectivo: ${formatMoney(pagado)}`,
-                  ` Deuda viva por pagar: ${formatMoney(restanteComprometido)}`
-                ];
-              }
-            }
-          }
-        },
-        scales: {
-          x: {
-            grid: {
-              color: 'rgba(51, 65, 85, 0.25)',
-              drawBorder: false
-            },
-            ticks: {
-              color: '#94a3b8',
-              font: { size: 11, family: 'Inter' }
-            }
-          },
-          y: {
-            grid: {
-              color: 'rgba(51, 65, 85, 0.25)',
-              drawBorder: false
-            },
-            ticks: {
-              color: '#94a3b8',
-              font: { size: 10, family: 'Inter' },
-              callback: function(val) {
-                return formatMoney(val).replace(',00', '');
+                const total = context.dataset.data.reduce((a, b) => a + b, 0) || 1;
+                const pct = ((context.parsed / total) * 100).toFixed(1);
+                return ` ${context.label}: ${formatMoney(context.parsed)} (${pct}%)`;
               }
             }
           }
         }
       }
     });
-  } catch (err) {
-    console.error('Error cargando gráfico de flujo:', err);
+    return;
+  }
+
+  // MODO 2: GRÁFICO DE BARRAS (COMPARATIVA MENSUAL)
+  if (currentChartType === 'bar') {
+    flujoChartInstance = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: data.meses,
+        datasets: [
+          {
+            label: 'Ingresos',
+            data: data.ingresos,
+            backgroundColor: 'rgba(45, 212, 191, 0.75)',
+            borderColor: '#2dd4bf',
+            borderWidth: 1.5,
+            borderRadius: 5
+          },
+          {
+            label: 'Dinero Disponible',
+            data: data.dineroDisponible || data.ingresos,
+            backgroundColor: 'rgba(245, 158, 11, 0.75)',
+            borderColor: '#f59e0b',
+            borderWidth: 1.5,
+            borderRadius: 5
+          },
+          {
+            label: 'Gastos Totales',
+            data: data.gastos,
+            backgroundColor: 'rgba(244, 63, 94, 0.75)',
+            borderColor: '#f43f5e',
+            borderWidth: 1.5,
+            borderRadius: 5
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top',
+            align: 'end',
+            labels: { color: '#94a3b8', boxWidth: 10, usePointStyle: true, font: { size: 11, family: 'Inter' } }
+          },
+          tooltip: {
+            backgroundColor: 'rgba(9, 14, 23, 0.96)',
+            titleColor: '#f8fafc',
+            bodyColor: '#cbd5e1',
+            borderColor: '#1a273a',
+            borderWidth: 1,
+            padding: 10,
+            boxPadding: 5,
+            cornerRadius: 12,
+            usePointStyle: true,
+            callbacks: {
+              label: function(context) {
+                return ` ${context.dataset.label}: ${formatMoney(context.parsed.y)}`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: 'rgba(26, 39, 58, 0.45)', drawBorder: false },
+            ticks: { color: '#94a3b8', font: { size: 11, family: 'Inter' } }
+          },
+          y: {
+            grid: { color: 'rgba(26, 39, 58, 0.45)', drawBorder: false },
+            ticks: {
+              color: '#94a3b8',
+              font: { size: 10, family: 'Inter' },
+              callback: function(val) { return formatMoney(val).replace(',00', ''); }
+            }
+          }
+        }
+      }
+    });
+    return;
+  }
+
+  // MODO 3: GRÁFICO DE LÍNEAS NEÓN (POR DEFECTO)
+  const gradIngresos = ctx.createLinearGradient(0, 0, 0, 240);
+  gradIngresos.addColorStop(0, 'rgba(45, 212, 191, 0.22)');
+  gradIngresos.addColorStop(1, 'rgba(45, 212, 191, 0.00)');
+
+  const gradGastos = ctx.createLinearGradient(0, 0, 0, 240);
+  gradGastos.addColorStop(0, 'rgba(244, 63, 94, 0.20)');
+  gradGastos.addColorStop(1, 'rgba(244, 63, 94, 0.00)');
+
+  const gradDisponible = ctx.createLinearGradient(0, 0, 0, 240);
+  gradDisponible.addColorStop(0, 'rgba(245, 158, 11, 0.22)');
+  gradDisponible.addColorStop(1, 'rgba(245, 158, 11, 0.00)');
+
+  flujoChartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: data.meses,
+      datasets: [
+        {
+          label: 'Ingresos',
+          data: data.ingresos,
+          borderColor: '#2dd4bf',
+          backgroundColor: gradIngresos,
+          borderWidth: 2.5,
+          pointBackgroundColor: '#2dd4bf',
+          pointBorderColor: '#090e17',
+          pointBorderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6.5,
+          fill: false,
+          tension: 0.4
+        },
+        {
+          label: 'Dinero Disponible',
+          data: data.dineroDisponible || data.ingresos,
+          borderColor: '#f59e0b',
+          backgroundColor: gradDisponible,
+          borderWidth: 2.5,
+          pointBackgroundColor: '#f59e0b',
+          pointBorderColor: '#090e17',
+          pointBorderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6.5,
+          fill: true,
+          tension: 0.4
+        },
+        {
+          label: 'Gastos Totales',
+          data: data.gastos,
+          borderColor: '#f43f5e',
+          backgroundColor: gradGastos,
+          borderWidth: 2.5,
+          pointBackgroundColor: '#f43f5e',
+          pointBorderColor: '#090e17',
+          pointBorderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6.5,
+          fill: false,
+          tension: 0.4
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        mode: 'index',
+        intersect: false
+      },
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+          align: 'end',
+          labels: {
+            color: '#94a3b8',
+            boxWidth: 10,
+            usePointStyle: true,
+            font: { size: 11, family: 'Inter' }
+          }
+        },
+        tooltip: {
+          backgroundColor: 'rgba(9, 14, 23, 0.96)',
+          titleColor: '#f8fafc',
+          bodyColor: '#cbd5e1',
+          borderColor: '#1a273a',
+          borderWidth: 1,
+          padding: 10,
+          boxPadding: 5,
+          cornerRadius: 12,
+          usePointStyle: true,
+          callbacks: {
+            label: function(context) {
+              return ` ${context.dataset.label}: ${formatMoney(context.parsed.y)}`;
+            },
+            afterBody: function(items) {
+              const ing = items.find(i => i.dataset.label === 'Ingresos')?.parsed.y || 0;
+              const disp = items.find(i => i.dataset.label === 'Dinero Disponible')?.parsed.y || 0;
+              const gas = items.find(i => i.dataset.label === 'Gastos Totales')?.parsed.y || 0;
+              const pagado = ing - disp;
+              const restanteComprometido = Math.max(0, gas - pagado);
+
+              return [
+                ` Ya Pagado en efectivo: ${formatMoney(pagado)}`,
+                ` Deuda viva por pagar: ${formatMoney(restanteComprometido)}`
+              ];
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: {
+            color: 'rgba(26, 39, 58, 0.45)',
+            drawBorder: false
+          },
+          ticks: {
+            color: '#94a3b8',
+            font: { size: 11, family: 'Inter' }
+          }
+        },
+        y: {
+          grid: {
+            color: 'rgba(26, 39, 58, 0.45)',
+            drawBorder: false
+          },
+          ticks: {
+            color: '#94a3b8',
+            font: { size: 10, family: 'Inter' },
+            callback: function(val) {
+              return formatMoney(val).replace(',00', '');
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+// ==========================================
+// ASISTENTE DE CONFIGURACIÓN DINÁMICO
+// ==========================================
+let pasoActualAsistente = 1;
+
+function actualizarAsistenteConfiguracion() {
+  const badge = document.getElementById('badgeAsistenteProgreso');
+  const titulo = document.getElementById('tituloAsistentePaso');
+  const desc = document.getElementById('descAsistentePaso');
+  const btnTexto = document.getElementById('textoAsistenteAccion');
+  const icon = document.getElementById('iconAsistentePaso');
+  const iconContainer = document.getElementById('iconAsistenteContainer');
+  if (!badge || !titulo || !btnTexto) return;
+
+  const tieneIngresos = currentIngresosList && currentIngresosList.length > 0;
+  const tieneCuentas = currentCuentasList && currentCuentasList.length > 0;
+  const tieneGastos = currentGastosList && currentGastosList.length > 0;
+
+  if (!tieneIngresos) {
+    pasoActualAsistente = 1;
+    badge.textContent = 'Paso 1 de 3';
+    badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 font-semibold';
+    titulo.textContent = '1. Carga tu Ingreso Principal';
+    desc.textContent = 'Define tu sueldo mensual o cobros fijos para activar tus proyecciones';
+    btnTexto.textContent = 'Carga tu Ingreso Principal';
+    if (icon) icon.setAttribute('data-lucide', 'coins');
+    if (iconContainer) iconContainer.className = 'w-11 h-11 rounded-xl bg-teal-500/10 text-teal-400 border border-teal-500/20 flex items-center justify-center shrink-0';
+  } else if (!tieneCuentas) {
+    pasoActualAsistente = 2;
+    badge.textContent = 'Paso 2 de 3';
+    badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded-full bg-teal-500/10 text-teal-300 border border-teal-500/30 font-semibold';
+    titulo.textContent = '2. Conecta tus Cuentas y Bancos';
+    desc.textContent = 'Agrega tus billeteras virtuales o bancos para controlar tu saldo real';
+    btnTexto.textContent = 'Conectar Cuenta';
+    if (icon) icon.setAttribute('data-lucide', 'landmark');
+    if (iconContainer) iconContainer.className = 'w-11 h-11 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 flex items-center justify-center shrink-0';
+  } else if (!tieneGastos) {
+    pasoActualAsistente = 3;
+    badge.textContent = 'Paso 3 de 3';
+    badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/30 font-semibold';
+    titulo.textContent = '3. Registra tus Gastos y Vencimientos';
+    desc.textContent = 'Carga tus servicios, tarjetas o alquileres para alertar vencimientos';
+    btnTexto.textContent = 'Registrar Gasto';
+    if (icon) icon.setAttribute('data-lucide', 'receipt');
+    if (iconContainer) iconContainer.className = 'w-11 h-11 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center shrink-0';
+  } else {
+    pasoActualAsistente = 4;
+    badge.textContent = '¡Completado!';
+    badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 font-bold';
+    titulo.textContent = '🎉 Finanzas Sincronizadas y Activas';
+    desc.textContent = 'Tus ingresos, cuentas y gastos están conectados con tu panel general';
+    btnTexto.textContent = '+ Nuevo Movimiento';
+    if (icon) icon.setAttribute('data-lucide', 'shield-check');
+    if (iconContainer) iconContainer.className = 'w-11 h-11 rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0';
+  }
+
+  if (window.lucide) lucide.createIcons();
+}
+
+function ejecutarAccionAsistente() {
+  if (pasoActualAsistente === 1) {
+    openModal('modalIngreso');
+  } else if (pasoActualAsistente === 2) {
+    openModal('modalCuenta');
+  } else if (pasoActualAsistente === 3) {
+    openModal('modalGasto');
+  } else {
+    openModal('modalMobileActions');
+  }
+}
+
+function abrirModalSegunPasoAsistente() {
+  if (pasoActualAsistente === 1) {
+    switchTab('ingresos');
+  } else if (pasoActualAsistente === 2) {
+    switchTab('cuentas');
+  } else if (pasoActualAsistente === 3) {
+    switchTab('gastos');
+  } else {
+    openModal('modalMobileActions');
   }
 }
 
@@ -1365,6 +1637,7 @@ async function loadAllData() {
     loadMetas(),
     loadPresupuestos()
   ]);
+  actualizarAsistenteConfiguracion();
   showToast('Datos actualizados');
 }
 
@@ -3568,13 +3841,13 @@ function switchWorkspaceMode(mode) {
   if (wsContador) wsContador.classList.add('hidden');
 
   // Resetear estados de botones desktop
-  const inactivoDesktop = 'px-2.5 py-1 rounded-lg transition flex items-center gap-1.5 text-slate-400 hover:text-white';
+  const inactivoDesktop = 'px-2.5 sm:px-3 py-1 rounded-xl transition-all flex items-center gap-1.5 text-slate-400 hover:text-white bg-[#0d1522] border border-slate-800/80';
   if (btnPersonal) btnPersonal.className = inactivoDesktop;
   if (btnNegocios) btnNegocios.className = inactivoDesktop;
   if (btnContador) btnContador.className = inactivoDesktop;
 
   // Resetear estados de botones mobile
-  const inactivoMobile = 'py-1.5 px-1.5 rounded-lg transition flex items-center justify-center gap-1 text-slate-400 hover:text-white';
+  const inactivoMobile = 'py-1.5 px-1.5 rounded-xl transition-all flex items-center justify-center gap-1 text-slate-400 hover:text-white bg-[#0d1522] border border-slate-800/80';
   if (btnPersonalMobile) btnPersonalMobile.className = inactivoMobile;
   if (btnNegociosMobile) btnNegociosMobile.className = inactivoMobile;
   if (btnContadorMobile) btnContadorMobile.className = inactivoMobile;
@@ -3586,8 +3859,8 @@ function switchWorkspaceMode(mode) {
 
   if (mode === 'contador') {
     if (wsContador) wsContador.classList.remove('hidden');
-    if (btnContador) btnContador.className = 'px-2.5 py-1 rounded-lg transition flex items-center gap-1.5 bg-cyan-500 text-slate-950 font-bold shadow-sm';
-    if (btnContadorMobile) btnContadorMobile.className = 'py-1.5 px-1.5 rounded-lg transition flex items-center justify-center gap-1 bg-cyan-500 text-slate-950 font-bold shadow-sm';
+    if (btnContador) btnContador.className = 'px-2.5 sm:px-3 py-1 rounded-xl transition-all flex items-center gap-1.5 bg-cyan-500/15 border border-cyan-400/60 text-cyan-300 font-bold shadow-[0_0_12px_rgba(0,242,254,0.25)]';
+    if (btnContadorMobile) btnContadorMobile.className = 'py-1.5 px-1.5 rounded-xl transition-all flex items-center justify-center gap-1 bg-cyan-500/15 border border-cyan-400/60 text-cyan-300 font-bold shadow-[0_0_12px_rgba(0,242,254,0.25)]';
     if (bottomNavContador) bottomNavContador.classList.remove('hidden');
     if (subtitle) subtitle.textContent = 'Panel Estudio Contable B2B';
 
@@ -3596,8 +3869,8 @@ function switchWorkspaceMode(mode) {
     }
   } else if (mode === 'negocios') {
     if (wsNegocios) wsNegocios.classList.remove('hidden');
-    if (btnNegocios) btnNegocios.className = 'px-2.5 py-1 rounded-lg transition flex items-center gap-1.5 bg-amber-500 text-slate-950 font-bold shadow-sm';
-    if (btnNegociosMobile) btnNegociosMobile.className = 'py-1.5 px-1.5 rounded-lg transition flex items-center justify-center gap-1 bg-amber-500 text-slate-950 font-bold shadow-sm';
+    if (btnNegocios) btnNegocios.className = 'px-2.5 sm:px-3 py-1 rounded-xl transition-all flex items-center gap-1.5 bg-amber-500/15 border border-amber-400/60 text-amber-300 font-bold shadow-[0_0_12px_rgba(245,158,11,0.25)]';
+    if (btnNegociosMobile) btnNegociosMobile.className = 'py-1.5 px-1.5 rounded-xl transition-all flex items-center justify-center gap-1 bg-amber-500/15 border border-amber-400/60 text-amber-300 font-bold shadow-[0_0_12px_rgba(245,158,11,0.25)]';
     if (bottomNavNegocios) bottomNavNegocios.classList.remove('hidden');
     if (subtitle) subtitle.textContent = 'Gestión Comercial & Freelancers';
 
@@ -3606,8 +3879,8 @@ function switchWorkspaceMode(mode) {
     }
   } else {
     if (wsPersonal) wsPersonal.classList.remove('hidden');
-    if (btnPersonal) btnPersonal.className = 'px-2.5 py-1 rounded-lg transition flex items-center gap-1.5 bg-emerald-500 text-slate-950 font-bold shadow-sm';
-    if (btnPersonalMobile) btnPersonalMobile.className = 'py-1.5 px-1.5 rounded-lg transition flex items-center justify-center gap-1 bg-emerald-500 text-slate-950 font-bold shadow-sm';
+    if (btnPersonal) btnPersonal.className = 'px-2.5 sm:px-3 py-1 rounded-xl transition-all flex items-center gap-1.5 bg-teal-500/15 border border-teal-400/60 text-teal-300 font-bold shadow-[0_0_12px_rgba(45,212,191,0.25)]';
+    if (btnPersonalMobile) btnPersonalMobile.className = 'py-1.5 px-1.5 rounded-xl transition-all flex items-center justify-center gap-1 bg-teal-500/15 border border-teal-400/60 text-teal-300 font-bold shadow-[0_0_12px_rgba(45,212,191,0.25)]';
     if (bottomNavPersonal) bottomNavPersonal.classList.remove('hidden');
     if (subtitle) subtitle.textContent = 'Finanzas Personales';
   }
